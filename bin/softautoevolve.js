@@ -128,6 +128,30 @@ program
     }
   });
 
+// Agent command - Intelligent Agent Mode (Default)
+program
+  .command('agent [project-dir]')
+  .alias('dev')
+  .description('🧠 Start intelligent agent - continuous development like Claude Code (RECOMMENDED)')
+  .option('-v, --verbose', 'Enable verbose output')
+  .action(async (projectDir, options) => {
+    try {
+      if (options.verbose) {
+        process.env.VERBOSE = 'true';
+      }
+
+      const { startIntelligentAgent } = await import(
+        '../dist/agent/index.js'
+      );
+
+      const targetDir = projectDir || process.cwd();
+      await startIntelligentAgent(targetDir);
+    } catch (error) {
+      console.error('❌ Error:', error.message);
+      process.exit(1);
+    }
+  });
+
 // Workflow command
 program
   .command('workflow')
