@@ -7,6 +7,11 @@ export { GitAutomation } from './git-automation.js';
 export { AutoTaskGenerator } from './auto-task-generator.js';
 export { ProjectAnalyzer, ProjectIntent } from './project-analyzer.js';
 export { GitHubAutomation } from './github-automation.js';
+export { MDAnalyzer, MDAnalysisResult, MDFileInfo } from './md-analyzer.js';
+export { NotificationSystem, NotificationType } from './notification-system.js';
+export { ParallelBranchManager, ParallelBranch, BranchStatus } from './parallel-branch-manager.js';
+export { TaskCoordinator, TaskGroup } from './task-coordinator.js';
+export { InteractiveCLI } from './interactive-cli.js';
 
 import { IntelligentDevelopmentAgent } from './intelligent-agent.js';
 import { AutonomousAgent } from './autonomous-agent.js';

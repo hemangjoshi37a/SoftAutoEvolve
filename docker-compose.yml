@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  softautoevolve:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: softautoevolve
+    image: softautoevolve:latest
+
+    # Environment variables
+    environment:
+      - NODE_ENV=production
+      - ENHANCED_MODE=true
+      - CLAUDE_CODE_PATH=/app/claude-code
+      - SPEC_KIT_PATH=/app/spec-kit
+      - SHINKA_EVOLVE_PATH=/app/shinka-evolve
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - GITHUB_USERNAME=${GITHUB_USERNAME}
+      - AUTO_INSTALL_DEPS=false
+      - VERBOSE=${VERBOSE:-false}
+
+    # Volumes
+    volumes:
+      # Mount workspace directory (where projects are developed)
+      - ./workspace:/workspace
+
+      # Mount configuration
+      - ./config:/root/.config
+
+      # Mount external tools if available
+      - ${CLAUDE_CODE_PATH:-./external/claude-code}:/app/claude-code:ro
+      - ${SPEC_KIT_PATH:-./external/spec-kit}:/app/spec-kit:ro
+      - ${SHINKA_EVOLVE_PATH:-./external/shinka-evolve}:/app/shinka-evolve:ro
+
+      # Mount Git config
+      - ~/.gitconfig:/root/.gitconfig:ro
+      - ~/.ssh:/root/.ssh:ro
+
+    # Working directory
+    working_dir: /workspace
+
+    # Keep container running
+    stdin_open: true
+    tty: true
+
+    # Restart policy
+    restart: unless-stopped
+
+    # Resource limits (adjust as needed)
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G
+        reservations:
+          cpus: '2'
+          memory: 2G
+
+    # Network mode (use host for full network access)
+    network_mode: bridge
+
+    # Command to run
+    command: bash -c "echo 'SoftAutoEvolve container ready' && exec bash"
+
+# Named volumes
+volumes:
+  workspace:
+    driver: local
+  config:
+    driver: local
+
+# Networks
+networks:
+  default:
+    driver: bridge

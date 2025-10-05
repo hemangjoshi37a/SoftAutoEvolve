@@ -115,8 +115,16 @@ export class GitAutomation {
       // Delete feature branch
       await execAsync(`git branch -d ${branchName}`, { cwd: this.workingDir });
       console.log(`✓ Deleted branch: ${branchName}`);
+
+      // Make sure we're on main branch
+      await execAsync(`git checkout ${this.mainBranch}`, { cwd: this.workingDir });
+      console.log(`✓ Switched back to ${this.mainBranch}`);
     } catch (error: any) {
       console.warn(`⚠ Merge failed: ${error.message}`);
+      // Try to get back to main anyway
+      try {
+        await execAsync(`git checkout ${this.mainBranch}`, { cwd: this.workingDir });
+      } catch {}
     }
   }
 

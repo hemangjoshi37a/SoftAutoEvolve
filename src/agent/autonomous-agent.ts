@@ -3,6 +3,8 @@ import { AutoTaskGenerator } from './auto-task-generator.js';
 import { GitAutomation } from './git-automation.js';
 import { ProjectAnalyzer, ProjectIntent } from './project-analyzer.js';
 import { GitHubAutomation } from './github-automation.js';
+import { MDAnalyzer, MDAnalysisResult } from './md-analyzer.js';
+import { NotificationSystem } from './notification-system.js';
 
 /**
  * Autonomous Development Agent
@@ -14,10 +16,13 @@ export class AutonomousAgent {
   private gitAutomation: GitAutomation;
   private projectAnalyzer: ProjectAnalyzer;
   private githubAutomation: GitHubAutomation;
+  private mdAnalyzer: MDAnalyzer;
+  private notifications: NotificationSystem;
   private workingDir: string;
   private cycleCount: number = 0;
   private running: boolean = false;
   private projectIntent: ProjectIntent | null = null;
+  private mdAnalysisResult: MDAnalysisResult | null = null;
 
   constructor(workingDir: string) {
     this.workingDir = workingDir;
@@ -26,6 +31,8 @@ export class AutonomousAgent {
     this.gitAutomation = new GitAutomation(workingDir);
     this.projectAnalyzer = new ProjectAnalyzer(workingDir);
     this.githubAutomation = new GitHubAutomation(workingDir);
+    this.mdAnalyzer = new MDAnalyzer(workingDir);
+    this.notifications = new NotificationSystem();
   }
 
   /**
@@ -47,6 +54,11 @@ export class AutonomousAgent {
     console.log(this.projectAnalyzer.getSummary(this.projectIntent));
     console.log('');
 
+    // Analyze Markdown documentation
+    this.mdAnalysisResult = await this.mdAnalyzer.analyzeAllMDFiles();
+    console.log(this.mdAnalyzer.formatSummary(this.mdAnalysisResult));
+    console.log('');
+
     // Initialize Git and GitHub
     await this.orchestrator.initialize();
 
@@ -66,6 +78,7 @@ export class AutonomousAgent {
         await this.delay(2000); // 2 second pause between cycles
       } catch (error: any) {
         console.error(`❌ Cycle error: ${error.message}`);
+        await this.notifications.notifyCycleError(this.cycleCount, error.message);
         await this.delay(5000); // Longer delay on error
       }
     }
@@ -86,6 +99,13 @@ export class AutonomousAgent {
     if (this.projectIntent) {
       // Use intelligent task generation based on project analysis
       tasks = this.projectAnalyzer.generateDevelopmentPlan(this.projectIntent);
+
+      // Add documentation improvement tasks from MD analysis
+      if (this.mdAnalysisResult) {
+        const docTasks = this.mdAnalyzer.generateTasks(this.mdAnalysisResult);
+        // Add doc tasks with lower priority (add a few, not all)
+        tasks = tasks.concat(docTasks.slice(0, 2));
+      }
     } else {
       // Fallback to generic task generation
       tasks = await this.taskGenerator.generateTasks();
@@ -102,6 +122,9 @@ export class AutonomousAgent {
         );
       }
 
+      // Notify project completion
+      await this.notifications.notifyProjectComplete();
+
       this.running = false;
       return;
     }
@@ -113,18 +136,26 @@ export class AutonomousAgent {
 
     // Push to GitHub after each cycle
     if (this.githubAutomation.isConfigured()) {
-      await this.githubAutomation.pushToGitHub(
-        require('path').basename(this.workingDir)
-      );
+      const repoName = require('path').basename(this.workingDir);
+      await this.githubAutomation.pushToGitHub(repoName);
+      await this.notifications.notifyGitHubPush(repoName);
     }
 
     // Display stats
     await this.displayStats();
 
+    // Notify cycle completion
+    await this.notifications.notifyCycleComplete(this.cycleCount, tasks.length);
+
     console.log('└─────────────────────────────────────────┘\n');
 
     // Re-analyze project for next cycle
     this.projectIntent = await this.projectAnalyzer.analyzeProject();
+
+    // Re-analyze MD files every 3 cycles to track documentation improvements
+    if (this.cycleCount % 3 === 0) {
+      this.mdAnalysisResult = await this.mdAnalyzer.analyzeAllMDFiles();
+    }
   }
 
   /**

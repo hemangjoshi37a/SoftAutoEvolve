@@ -102,7 +102,7 @@ export class TaskExecutor {
    */
   private async runClaudeWithPrompt(prompt: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      const child = spawn('claude', [], {
+      const child = spawn('claude', ['--dangerously-skip-permissions'], {
         cwd: this.workingDir,
         stdio: ['pipe', 'pipe', 'pipe'],
       });
