@@ -171,12 +171,20 @@ export class TaskExecutor {
       // Send the prompt
       child.stdin.write(prompt + '\n');
 
-      // Monitor for inactivity and close when no output for 10 seconds
+      // Send exit command after a short delay to let Claude process
+      setTimeout(() => {
+        child.stdin.write('\x03'); // Ctrl+C
+        setTimeout(() => {
+          child.stdin.end();
+        }, 500);
+      }, 3000);
+
+      // Monitor for inactivity and close when no output for 15 seconds
       const inactivityCheckInterval = setInterval(() => {
         const timeSinceLastOutput = Date.now() - lastOutputTime;
 
-        // If we've received output and there's been no activity for 10 seconds, close
-        if (hasReceivedOutput && timeSinceLastOutput > 10000) {
+        // If we've received output and there's been no activity for 15 seconds, close
+        if (hasReceivedOutput && timeSinceLastOutput > 15000) {
           clearInterval(inactivityCheckInterval);
           clearTimeout(maxTimeoutHandle);
 
@@ -185,12 +193,13 @@ export class TaskExecutor {
             process.stdout.write(`   │ \x1b[36m▸\x1b[0m ${lineBuffer}\n`);
           }
 
-          child.stdin.write('exit\n');
-          child.stdin.end();
+          try {
+            child.kill('SIGTERM');
+          } catch {}
         }
       }, 1000);
 
-      // Maximum timeout of 120 seconds (2 minutes) as absolute safety
+      // Maximum timeout of 60 seconds as absolute safety
       const maxTimeoutHandle = setTimeout(() => {
         clearInterval(inactivityCheckInterval);
 
@@ -199,10 +208,17 @@ export class TaskExecutor {
           process.stdout.write(`   │ \x1b[36m▸\x1b[0m ${lineBuffer}\n`);
         }
 
-        process.stdout.write(`   │ \x1b[33m⚠\x1b[0m  Maximum execution time reached, closing...\n`);
-        child.stdin.write('exit\n');
-        child.stdin.end();
-      }, 120000);
+        console.log(`   │ \x1b[33m⚠\x1b[0m  Timeout reached, closing Claude Code...`);
+
+        try {
+          child.kill('SIGTERM');
+          setTimeout(() => {
+            try {
+              child.kill('SIGKILL');
+            } catch {}
+          }, 2000);
+        } catch {}
+      }, 60000);
 
       child.on('close', (code) => {
         clearInterval(inactivityCheckInterval);

@@ -71,17 +71,28 @@ export class AutonomousAgent {
     console.log(this.mdAnalyzer.formatSummary(this.mdAnalysisResult));
     console.log('');
 
-    // Display sensory capabilities
+    // Initialize sensory system
+    await this.sensorySystem.initialize();
+
+    // Display sensory capabilities (Sensors & Actuators)
     console.log(CyberpunkUI.info('Detecting sensory capabilities...\n'));
     const capabilities = await this.closedLoopTester.getCapabilities();
-    console.log('🎮 Sensory Capabilities:');
-    console.log(`   X11 Display: ${capabilities.x11 ? '\x1b[32m✓\x1b[0m' : '\x1b[31m✗\x1b[0m'}`);
-    console.log(`   Screenshot:  ${capabilities.screenshot ? '\x1b[32m✓\x1b[0m' : '\x1b[31m✗\x1b[0m'}`);
-    console.log(`   Keyboard:    ${capabilities.keyboard ? '\x1b[32m✓\x1b[0m' : '\x1b[31m✗\x1b[0m'}`);
-    console.log(`   Mouse:       ${capabilities.mouse ? '\x1b[32m✓\x1b[0m' : '\x1b[31m✗\x1b[0m'}`);
-    console.log(`   Browser:     ${capabilities.browser ? '\x1b[32m✓\x1b[0m' : '\x1b[31m✗\x1b[0m'}`);
-    console.log(`   Actiona:     ${capabilities.actiona ? '\x1b[32m✓\x1b[0m' : '\x1b[31m✗\x1b[0m'}`);
-    console.log(`   OCR:         ${capabilities.ocr ? '\x1b[32m✓\x1b[0m' : '\x1b[31m✗\x1b[0m'}`);
+
+    console.log('🎮 Sensory System Status:');
+    console.log(`   X11 Display: ${capabilities.x11 ? '\x1b[32m✓\x1b[0m' : '\x1b[31m✗\x1b[0m'}\n`);
+
+    console.log('   📥 SENSORS (Input - Perceive Environment):');
+    console.log(`      Screenshot:  ${capabilities.sensors.screenshot ? '\x1b[32m✓\x1b[0m' : '\x1b[31m✗\x1b[0m'}`);
+    console.log(`      Browser:     ${capabilities.sensors.browser ? '\x1b[32m✓\x1b[0m' : '\x1b[31m✗\x1b[0m'}`);
+    console.log(`      OCR:         ${capabilities.sensors.ocr ? '\x1b[32m✓\x1b[0m' : '\x1b[31m✗\x1b[0m'}\n`);
+
+    console.log('   📤 ACTUATORS (Output - Change Environment):');
+    console.log(`      Keyboard:    ${capabilities.actuators.keyboard ? '\x1b[32m✓\x1b[0m' : '\x1b[31m✗\x1b[0m'}`);
+    console.log(`      Mouse:       ${capabilities.actuators.mouse ? '\x1b[32m✓\x1b[0m' : '\x1b[31m✗\x1b[0m'}`);
+    console.log(`      Window Mgmt: ${capabilities.actuators.window ? '\x1b[32m✓\x1b[0m' : '\x1b[31m✗\x1b[0m'}\n`);
+
+    console.log('   🤖 Advanced Automation:');
+    console.log(`      Actiona:     ${capabilities.actiona ? '\x1b[32m✓\x1b[0m' : '\x1b[31m✗\x1b[0m'}`);
     console.log('');
 
     // Check for open branches to resume

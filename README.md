@@ -14,7 +14,15 @@
 
 ## 🎉 Latest Updates
 
-### v3.4 - Closed-Loop Sensory Edition (NEW!) 🎮
+### v3.5 - Sensors & Actuators Edition (NEW!) 📥📤
+- 🔧 **Fixed Claude Code Hanging** - No more timeouts! Clean 3-second exit with proper signals
+- 📥 **Sensors (Input)** - Screen, browser, OCR for perceiving environment
+- 📤 **Actuators (Output)** - Keyboard, mouse, window management for changing environment
+- ✅ **Fixed Capability Detection** - xdotool, wmctrl, browser all working correctly
+- 🎯 **Conceptual Clarity** - Proper robotics terminology for closed-loop system
+- 📖 **[Full v3.5 Changelog](./IMPROVEMENTS_v3.5.md)**
+
+### v3.4 - Closed-Loop Sensory Edition 🎮
 - 👁️ **Visual Feedback** - Screen capture, window management, and screenshot analysis
 - ⌨️🖱️ **Keyboard/Mouse Control** - Full X11/Xorg automation with xdotool
 - 🌐 **Browser Automation** - Test web applications with real browser interaction

@@ -6,13 +6,22 @@ import * as path from 'path';
 const execAsync = promisify(exec);
 
 /**
- * Sensory System - Visual & Interactive Feedback
- * Provides closed-loop feedback with screen capture, keyboard, mouse, and browser control
+ * Sensory System - Sensors (Input) & Actuators (Output)
+ *
+ * SENSORS (Input - perceive environment):
+ * - Screen capture (screenshots)
+ * - Browser content (web pages)
+ * - OCR text extraction
+ *
+ * ACTUATORS (Output - change environment):
+ * - Keyboard (typing, key presses)
+ * - Mouse (clicking, dragging)
+ * - Window management (focus, move)
  */
 export class SensorySystem {
   private workingDir: string;
   private screenshotsDir: string;
-  private browserControlEnabled: boolean = false;
+  private browserAvailable: boolean = false;
   private x11DisplayAvailable: boolean = false;
 
   constructor(workingDir: string) {
@@ -23,27 +32,25 @@ export class SensorySystem {
     if (!fs.existsSync(this.screenshotsDir)) {
       fs.mkdirSync(this.screenshotsDir, { recursive: true });
     }
-
-    this.detectCapabilities();
   }
 
   /**
-   * Detect available sensory capabilities
+   * Initialize and detect available capabilities
    */
-  private async detectCapabilities(): Promise<void> {
+  public async initialize(): Promise<void> {
     try {
-      // Check if X11/Xorg display is available
+      // Check if X11/Xorg display is available (SENSOR)
       const display = process.env.DISPLAY;
       if (display) {
         this.x11DisplayAvailable = true;
         console.log(`   \x1b[36m▸\x1b[0m X11 Display detected: ${display}`);
       }
 
-      // Check for browser automation tools
+      // Check for browser automation tools (SENSOR for web content)
       const browserTools = await this.checkBrowserTools();
       if (browserTools.length > 0) {
-        this.browserControlEnabled = true;
-        console.log(`   \x1b[36m▸\x1b[0m Browser control: ${browserTools.join(', ')}`);
+        this.browserAvailable = true;
+        console.log(`   \x1b[36m▸\x1b[0m Browser available: ${browserTools.join(', ')}`);
       }
     } catch (error) {
       // Silent fail - capabilities will be limited
@@ -190,8 +197,8 @@ export class SensorySystem {
    * Open URL in browser and capture screenshot
    */
   public async openUrlAndCapture(url: string, filename: string = 'browser.png', waitTime: number = 3000): Promise<string> {
-    if (!this.browserControlEnabled) {
-      throw new Error('Browser control not available');
+    if (!this.browserAvailable) {
+      throw new Error('Browser not available');
     }
 
     try {
@@ -385,54 +392,89 @@ export class SensorySystem {
   }
 
   /**
-   * Get system capabilities report
+   * Get system capabilities report (Sensors & Actuators)
    */
   public async getCapabilitiesReport(): Promise<{
+    // Core
     x11: boolean;
-    browser: boolean;
-    screenshot: boolean;
-    keyboard: boolean;
-    mouse: boolean;
+    // Sensors (Input - perceive environment)
+    sensors: {
+      screenshot: boolean;
+      browser: boolean;
+      ocr: boolean;
+    };
+    // Actuators (Output - change environment)
+    actuators: {
+      keyboard: boolean;
+      mouse: boolean;
+      window: boolean;
+    };
+    // Advanced
     actiona: boolean;
-    ocr: boolean;
   }> {
     const capabilities = {
       x11: this.x11DisplayAvailable,
-      browser: this.browserControlEnabled,
-      screenshot: false,
-      keyboard: false,
-      mouse: false,
+      sensors: {
+        screenshot: false,
+        browser: false,
+        ocr: false,
+      },
+      actuators: {
+        keyboard: false,
+        mouse: false,
+        window: false,
+      },
       actiona: false,
-      ocr: false,
     };
 
-    // Check screenshot tools
+    // Check screenshot tools (SENSOR)
     try {
-      await execAsync('which scrot');
-      capabilities.screenshot = true;
+      await execAsync('which scrot 2>/dev/null');
+      capabilities.sensors.screenshot = true;
     } catch {
       try {
-        await execAsync('which gnome-screenshot');
-        capabilities.screenshot = true;
-      } catch {}
+        await execAsync('which gnome-screenshot 2>/dev/null');
+        capabilities.sensors.screenshot = true;
+      } catch {
+        try {
+          await execAsync('which import 2>/dev/null');
+          capabilities.sensors.screenshot = true;
+        } catch {}
+      }
     }
 
-    // Check xdotool for keyboard/mouse
+    // Check browser (SENSOR for web content)
     try {
-      await execAsync('which xdotool');
-      capabilities.keyboard = true;
-      capabilities.mouse = true;
+      const browsers = await this.checkBrowserTools();
+      capabilities.sensors.browser = browsers.length > 0;
     } catch {}
 
-    // Check Actiona
+    // Check tesseract for OCR (SENSOR for text extraction)
+    try {
+      await execAsync('which tesseract 2>/dev/null');
+      capabilities.sensors.ocr = true;
+    } catch {}
+
+    // Check xdotool for keyboard/mouse (ACTUATORS)
+    try {
+      const { stdout } = await execAsync('which xdotool 2>/dev/null');
+      if (stdout.trim()) {
+        capabilities.actuators.keyboard = true;
+        capabilities.actuators.mouse = true;
+      }
+    } catch {}
+
+    // Check wmctrl for window management (ACTUATOR)
+    try {
+      const { stdout } = await execAsync('which wmctrl 2>/dev/null');
+      if (stdout.trim()) {
+        capabilities.actuators.window = true;
+      }
+    } catch {}
+
+    // Check Actiona (Advanced automation)
     const actionaBin = '/home/hemang/Documents/GitHub/actiona/build/bin/actiona';
     capabilities.actiona = fs.existsSync(actionaBin);
-
-    // Check tesseract for OCR
-    try {
-      await execAsync('which tesseract');
-      capabilities.ocr = true;
-    } catch {}
 
     return capabilities;
   }
