@@ -17,6 +17,8 @@ export { BranchResumeManager, BranchInfo } from './branch-resume-manager.js';
 export { CyberpunkUI } from './cyberpunk-ui.js';
 export { SensorySystem } from './sensory-system.js';
 export { ClosedLoopTester } from './closed-loop-tester.js';
+export { ClosedLoopOrchestrator } from './closed-loop-orchestrator.js';
+export { CompactUI } from './compact-ui.js';
 
 import { IntelligentDevelopmentAgent } from './intelligent-agent.js';
 import { AutonomousAgent } from './autonomous-agent.js';

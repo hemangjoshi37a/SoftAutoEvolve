@@ -98,72 +98,52 @@ export class TaskExecutor {
   }
 
   /**
-   * Run Claude Code with a prompt (using file-based approach for reliability)
+   * Run Claude Code with a prompt (compact UI with progress)
    */
   private async runClaudeWithPrompt(prompt: string): Promise<string> {
-    console.log('\n   ┌─ Claude Code Execution ──────────────────────────┐');
-    console.log(`   │ \x1b[36m▸\x1b[0m Task: ${prompt.split('\n')[0].replace('Task: ', '').substring(0, 50)}...`);
+    const startTime = Date.now();
+    const spinner = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
+    let spinnerIndex = 0;
 
-    // Create a temporary file with the prompt
+    // Create temp file
     const tempFile = path.join(this.workingDir, `.claude-prompt-${Date.now()}.txt`);
     fs.writeFileSync(tempFile, prompt);
 
-    try {
-      // Run claude with a simple command that exits automatically
-      console.log(`   │ \x1b[36m▸\x1b[0m Executing with Claude Code...`);
+    // Show compact progress
+    process.stdout.write('      ⏳ Claude Code: ');
 
+    const interval = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - startTime) / 1000);
+      process.stdout.write(`\r      ${spinner[spinnerIndex]} Claude Code: ${elapsed}s`);
+      spinnerIndex = (spinnerIndex + 1) % spinner.length;
+    }, 100);
+
+    try {
       const { stdout, stderr } = await execAsync(
-        `echo "${prompt}" | timeout 30s claude --dangerously-skip-permissions || true`,
+        `echo "${prompt.replace(/"/g, '\\"')}" | timeout 45s claude --dangerously-skip-permissions || true`,
         {
           cwd: this.workingDir,
-          maxBuffer: 1024 * 1024 * 10, // 10MB buffer
+          maxBuffer: 1024 * 1024 * 10,
           shell: '/bin/bash',
         }
       );
 
-      // Display output
-      if (stdout && stdout.trim()) {
-        const lines = stdout.trim().split('\n');
-        for (const line of lines) {
-          if (line.trim() && !line.includes('Pre-flight check')) {
-            console.log(`   │ \x1b[36m▸\x1b[0m ${line.substring(0, 70)}`);
-          }
-        }
-      }
+      clearInterval(interval);
+      const duration = Math.floor((Date.now() - startTime) / 1000);
+      process.stdout.write(`\r      ✓ Claude Code: ${duration}s\n`);
 
-      // Show errors if any (but not pre-flight warnings)
-      if (stderr && stderr.trim()) {
-        const errLines = stderr.trim().split('\n');
-        for (const line of errLines) {
-          if (line.trim() &&
-              !line.includes('Pre-flight check') &&
-              !line.includes('ANTHROPIC_LOG=debug') &&
-              !line.includes('WARNING')) {
-            console.log(`   │ \x1b[31m✗\x1b[0m ${line.substring(0, 70)}`);
-          }
-        }
-      }
-
-      console.log(`   │ \x1b[32m✓\x1b[0m Execution completed`);
-      console.log('   └──────────────────────────────────────────────────┘\n');
-
-      // Clean up temp file
-      try {
-        fs.unlinkSync(tempFile);
-      } catch {}
+      // Clean up
+      try { fs.unlinkSync(tempFile); } catch {}
 
       return stdout || 'Task executed';
     } catch (error: any) {
-      console.log(`   │ \x1b[33m⚠\x1b[0m  ${error.message}`);
-      console.log('   └──────────────────────────────────────────────────┘\n');
+      clearInterval(interval);
+      process.stdout.write(`\r      ⚠️  Claude Code: ${error.message}\n`);
 
-      // Clean up temp file
-      try {
-        fs.unlinkSync(tempFile);
-      } catch {}
+      // Clean up
+      try { fs.unlinkSync(tempFile); } catch {}
 
-      // Don't fail the whole task, just return a message
-      return 'Task attempted (Claude Code execution completed with timeout)';
+      return 'Task attempted';
     }
   }
 
@@ -376,53 +356,75 @@ export class TaskExecutor {
   }
 
   /**
-   * Create a prompt from a task
+   * Create a smart, context-aware prompt from a task
    */
   private createPromptFromTask(task: Task): string {
     let prompt = `Task: ${task.description}\n\n`;
 
-    prompt += `Type: ${task.type}\n`;
-    prompt += `Priority: ${task.priority}\n\n`;
+    // Add git context
+    try {
+      const { execSync } = require('child_process');
+      const commits = execSync('git log -3 --oneline', { cwd: this.workingDir }).toString();
+      prompt += `Recent commits:\n${commits}\n`;
+
+      const status = execSync('git status --short', { cwd: this.workingDir }).toString();
+      if (status.trim()) {
+        prompt += `Modified files:\n${status}\n`;
+      }
+    } catch {}
+
+    prompt += `\nType: ${task.type} | Priority: ${task.priority}\n\n`;
 
     switch (task.type) {
       case 'feature':
-        prompt += 'Please implement this feature with:\n';
-        prompt += '- Clean, maintainable code\n';
-        prompt += '- Appropriate error handling\n';
-        prompt += '- Basic tests\n';
-        prompt += '- Comments for complex logic\n';
+        prompt += '## Requirements\n\n';
+        prompt += 'Implement this feature with:\n';
+        prompt += '1. Clean, maintainable code following project conventions\n';
+        prompt += '2. Proper error handling and input validation\n';
+        prompt += '3. Tests to verify functionality (run them!)\n';
+        prompt += '4. Documentation (docstrings, comments)\n\n';
+        prompt += 'After implementation:\n';
+        prompt += '- Run any existing tests\n';
+        prompt += '- Try running the application to verify it works\n';
+        prompt += '- Check for errors or warnings\n';
         break;
 
       case 'bug_fix':
-        prompt += 'Please fix this bug by:\n';
-        prompt += '- Identifying the root cause\n';
-        prompt += '- Implementing a proper fix\n';
-        prompt += '- Adding tests to prevent regression\n';
+        prompt += '## Debug Process\n\n';
+        prompt += '1. Analyze the code to identify the root cause\n';
+        prompt += '2. Implement a proper fix\n';
+        prompt += '3. Add tests to prevent regression\n';
+        prompt += '4. Run tests to verify the fix works\n';
         break;
 
       case 'optimization':
-        prompt += 'Please optimize the code for:\n';
-        prompt += '- Better performance\n';
-        prompt += '- Reduced resource usage\n';
-        prompt += '- Improved efficiency\n';
+        prompt += '## Optimization Goals\n\n';
+        prompt += '1. Profile the code to find bottlenecks\n';
+        prompt += '2. Optimize for better performance\n';
+        prompt += '3. Reduce resource usage\n';
+        prompt += '4. Verify improvements with benchmarks\n';
         break;
 
       case 'test':
-        prompt += 'Please add tests for:\n';
-        prompt += '- Unit test coverage\n';
-        prompt += '- Edge cases\n';
-        prompt += '- Error scenarios\n';
+        prompt += '## Test Coverage\n\n';
+        prompt += '1. Add comprehensive unit tests\n';
+        prompt += '2. Cover edge cases and error conditions\n';
+        prompt += '3. Run the tests to verify they pass\n';
+        prompt += '4. Aim for high code coverage\n';
         break;
 
       case 'refactor':
-        prompt += 'Please refactor the code for:\n';
-        prompt += '- Better structure\n';
-        prompt += '- Improved readability\n';
-        prompt += '- Maintainability\n';
+        prompt += '## Refactoring\n\n';
+        prompt += '1. Improve code structure and organization\n';
+        prompt += '2. Enhance readability and maintainability\n';
+        prompt += '3. Preserve existing functionality\n';
+        prompt += '4. Run tests to ensure nothing broke\n';
         break;
 
       default:
-        prompt += 'Please complete this task following best practices.\n';
+        prompt += '## Task Completion\n\n';
+        prompt += 'Complete this task following best practices.\n';
+        prompt += 'Run tests and verify everything works.\n';
     }
 
     return prompt;
