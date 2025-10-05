@@ -102,6 +102,8 @@ export class TaskExecutor {
    */
   private async runClaudeWithPrompt(prompt: string): Promise<string> {
     return new Promise((resolve, reject) => {
+      console.log('\n   ┌─ Claude Code Output ─────────────────────────────┐');
+
       const child = spawn('claude', ['--dangerously-skip-permissions'], {
         cwd: this.workingDir,
         stdio: ['pipe', 'pipe', 'pipe'],
@@ -109,18 +111,40 @@ export class TaskExecutor {
 
       let output = '';
       let errorOutput = '';
+      let lineBuffer = '';
 
       child.stdout.on('data', (data) => {
         const text = data.toString();
         output += text;
-        // Display output in real-time
-        process.stdout.write(text);
+
+        // Display output in real-time with indentation
+        lineBuffer += text;
+        const lines = lineBuffer.split('\n');
+
+        // Process all complete lines
+        for (let i = 0; i < lines.length - 1; i++) {
+          const line = lines[i];
+          if (line.trim()) {
+            // Add cyberpunk-style prefix
+            process.stdout.write(`   │ \x1b[36m▸\x1b[0m ${line}\n`);
+          }
+        }
+
+        // Keep the last incomplete line in buffer
+        lineBuffer = lines[lines.length - 1];
       });
 
       child.stderr.on('data', (data) => {
         const text = data.toString();
         errorOutput += text;
-        process.stderr.write(text);
+
+        // Show errors in red
+        const lines = text.split('\n');
+        lines.forEach((line: string) => {
+          if (line.trim()) {
+            process.stdout.write(`   │ \x1b[31m✗\x1b[0m ${line}\n`);
+          }
+        });
       });
 
       // Send the prompt
@@ -133,6 +157,8 @@ export class TaskExecutor {
       }, 5000); // Give it 5 seconds to process
 
       child.on('close', (code) => {
+        console.log('   └───────────────────────────────────────────────────┘\n');
+
         if (code === 0 || output.length > 0) {
           resolve(output);
         } else {
@@ -141,6 +167,7 @@ export class TaskExecutor {
       });
 
       child.on('error', (error) => {
+        console.log('   └───────────────────────────────────────────────────┘\n');
         reject(new Error(`Failed to run Claude Code: ${error.message}`));
       });
     });

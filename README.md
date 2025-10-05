@@ -14,6 +14,13 @@
 
 ## 🎉 Latest Updates
 
+### v3.2 - Cyberpunk Edition (NEW!) 🎮
+- 🎨 **Complete Cyberpunk UI** - Terminal aesthetics with neon colors and ASCII art
+- 👀 **Real-Time Claude Code Output** - See exactly what Claude is doing, no more blind execution
+- 🔄 **Intelligent Branch Resume** - Automatically checks and resumes open branches at startup
+- 🌈 **Progress Indicators** - Animated cyberpunk-style progress bars and status displays
+- 📖 **[Full v3.2 Changelog](./IMPROVEMENTS_v3.2.md)**
+
 ### v3.1 - Quality of Life Improvements
 - ✅ **Meaningful Branch Names** - No more `auto-1759651327824`! Now generates `feature-add-user-authentication`
 - ✅ **Better Project Detection** - TypeScript projects correctly detected, no more "unknown" type
@@ -472,6 +479,9 @@ We welcome contributions! SoftAutoEvolve is open-source and community-driven.
 - [x] Parallel branch execution
 - [x] Native OS notifications
 - [x] Meaningful branch names
+- [x] Real-time Claude Code output
+- [x] Intelligent branch resume
+- [x] Cyberpunk UI system
 - [ ] CodeScope 3D visualization integration
 - [ ] Claude Code extension interface
 

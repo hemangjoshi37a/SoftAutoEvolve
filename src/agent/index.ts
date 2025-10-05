@@ -13,6 +13,8 @@ export { ParallelBranchManager, ParallelBranch, BranchStatus } from './parallel-
 export { TaskCoordinator, TaskGroup } from './task-coordinator.js';
 export { InteractiveCLI } from './interactive-cli.js';
 export { BranchNameGenerator } from './branch-name-generator.js';
+export { BranchResumeManager, BranchInfo } from './branch-resume-manager.js';
+export { CyberpunkUI } from './cyberpunk-ui.js';
 
 import { IntelligentDevelopmentAgent } from './intelligent-agent.js';
 import { AutonomousAgent } from './autonomous-agent.js';

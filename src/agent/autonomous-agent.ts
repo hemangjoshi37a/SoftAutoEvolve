@@ -5,6 +5,8 @@ import { ProjectAnalyzer, ProjectIntent } from './project-analyzer.js';
 import { GitHubAutomation } from './github-automation.js';
 import { MDAnalyzer, MDAnalysisResult } from './md-analyzer.js';
 import { NotificationSystem } from './notification-system.js';
+import { BranchResumeManager } from './branch-resume-manager.js';
+import { CyberpunkUI } from './cyberpunk-ui.js';
 
 /**
  * Autonomous Development Agent
@@ -18,6 +20,7 @@ export class AutonomousAgent {
   private githubAutomation: GitHubAutomation;
   private mdAnalyzer: MDAnalyzer;
   private notifications: NotificationSystem;
+  private branchResumeManager: BranchResumeManager;
   private workingDir: string;
   private cycleCount: number = 0;
   private running: boolean = false;
@@ -33,6 +36,7 @@ export class AutonomousAgent {
     this.githubAutomation = new GitHubAutomation(workingDir);
     this.mdAnalyzer = new MDAnalyzer(workingDir);
     this.notifications = new NotificationSystem();
+    this.branchResumeManager = new BranchResumeManager(workingDir);
   }
 
   /**
@@ -41,15 +45,17 @@ export class AutonomousAgent {
   public async start(): Promise<void> {
     this.running = true;
 
-    console.log('╔════════════════════════════════════════╗');
-    console.log('║   🤖 Autonomous Agent Started         ║');
-    console.log('║   Infinite Development Mode            ║');
-    console.log('╚════════════════════════════════════════╝\n');
+    // Cyberpunk header
+    console.log(CyberpunkUI.banner([
+      '🤖 AUTONOMOUS AGENT INITIALIZED',
+      'INFINITE DEVELOPMENT MODE',
+      '═══════════════════════════'
+    ]));
 
-    console.log(`📁 ${this.workingDir}\n`);
+    console.log(CyberpunkUI.info(`Working Directory: ${this.workingDir}\n`));
 
     // Analyze project intent
-    console.log('🔍 Analyzing project...');
+    console.log(CyberpunkUI.info('Analyzing project structure...\n'));
     this.projectIntent = await this.projectAnalyzer.analyzeProject();
     console.log(this.projectAnalyzer.getSummary(this.projectIntent));
     console.log('');
@@ -58,6 +64,35 @@ export class AutonomousAgent {
     this.mdAnalysisResult = await this.mdAnalyzer.analyzeAllMDFiles();
     console.log(this.mdAnalyzer.formatSummary(this.mdAnalysisResult));
     console.log('');
+
+    // Check for open branches to resume
+    const branchesToResume = await this.branchResumeManager.getBranchesToResume();
+
+    if (branchesToResume.length > 0) {
+      console.log(CyberpunkUI.header('OPEN BRANCHES DETECTED'));
+      console.log('');
+
+      for (const branch of branchesToResume) {
+        // Resume the branch
+        const resumed = await this.branchResumeManager.resumeBranch(branch);
+
+        if (resumed) {
+          // Check if work is complete
+          const isComplete = await this.branchResumeManager.isBranchComplete(branch);
+
+          if (isComplete) {
+            // Complete and merge the branch
+            await this.branchResumeManager.completeBranch(branch.name);
+          } else {
+            // Continue working on this branch
+            console.log(CyberpunkUI.info('Continuing work on this branch...'));
+            break;
+          }
+        }
+      }
+
+      console.log('');
+    }
 
     // Initialize Git and GitHub
     await this.orchestrator.initialize();
