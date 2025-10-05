@@ -29,9 +29,49 @@ export class ProjectAnalyzer {
       description: '',
     };
 
-    // Read package.json if exists
-    const packageJsonPath = path.join(this.workingDir, 'package.json');
-    if (fs.existsSync(packageJsonPath)) {
+    // First, detect language by checking for key files (most reliable)
+    // Python detection (highest priority for language)
+    if (fs.existsSync(path.join(this.workingDir, 'requirements.txt')) ||
+        fs.existsSync(path.join(this.workingDir, 'setup.py')) ||
+        fs.existsSync(path.join(this.workingDir, 'pyproject.toml'))) {
+      intent.language = 'python';
+
+      // Check for Flask/Django/FastAPI
+      const reqFile = path.join(this.workingDir, 'requirements.txt');
+      if (fs.existsSync(reqFile)) {
+        const reqs = fs.readFileSync(reqFile, 'utf8').toLowerCase();
+        if (reqs.includes('flask')) {
+          intent.framework = 'flask';
+          intent.type = 'backend-api';
+        } else if (reqs.includes('django')) {
+          intent.framework = 'django';
+          intent.type = 'backend-api';
+        } else if (reqs.includes('fastapi')) {
+          intent.framework = 'fastapi';
+          intent.type = 'backend-api';
+        } else if (reqs.includes('pyqt6') || reqs.includes('pyqt5') || reqs.includes('tkinter')) {
+          intent.framework = 'pyqt6';
+          intent.type = 'desktop-app';
+        }
+
+        // Extract technologies from requirements
+        const reqLines = reqs.split('\n')
+          .map(l => l.split('==')[0].split('>=')[0].trim())
+          .filter(l => l && !l.startsWith('#'));
+        intent.technologies = reqLines.slice(0, 10);
+      }
+
+      // Check main Python files for entry points
+      const files = fs.readdirSync(this.workingDir);
+      const pyFiles = files.filter(f => f.endsWith('.py'));
+      if (pyFiles.includes('app.py')) intent.entryPoints.push('app.py');
+      if (pyFiles.includes('main.py')) intent.entryPoints.push('main.py');
+      if (pyFiles.includes('__main__.py')) intent.entryPoints.push('__main__.py');
+    }
+
+    // TypeScript/JavaScript detection
+    else if (fs.existsSync(path.join(this.workingDir, 'package.json'))) {
+      const packageJsonPath = path.join(this.workingDir, 'package.json');
       const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
       intent.description = packageJson.description || '';
 
@@ -83,6 +123,22 @@ export class ProjectAnalyzer {
       }
     }
 
+    // Detect other languages by file extensions
+    else {
+      const files = fs.readdirSync(this.workingDir);
+      if (files.some(f => f.endsWith('.go'))) intent.language = 'go';
+      else if (files.some(f => f.endsWith('.rs'))) intent.language = 'rust';
+      else if (files.some(f => f.endsWith('.java'))) intent.language = 'java';
+      else if (files.some(f => f.endsWith('.rb'))) intent.language = 'ruby';
+      else if (files.some(f => f.endsWith('.py'))) {
+        intent.language = 'python';
+        // Check if it's a desktop app based on file names
+        if (files.some(f => f.toLowerCase().includes('app.py') || f.toLowerCase().includes('main.py'))) {
+          intent.type = 'desktop-app';
+        }
+      }
+    }
+
     // Read README to understand purpose
     const readmeFiles = ['README.md', 'readme.md', 'README.txt', 'README'];
     for (const readme of readmeFiles) {
@@ -94,29 +150,6 @@ export class ProjectAnalyzer {
         break;
       }
     }
-
-    // Detect Python projects
-    if (fs.existsSync(path.join(this.workingDir, 'requirements.txt')) ||
-        fs.existsSync(path.join(this.workingDir, 'setup.py')) ||
-        fs.existsSync(path.join(this.workingDir, 'pyproject.toml'))) {
-      intent.language = 'python';
-
-      // Check for Flask/Django/FastAPI
-      const reqFile = path.join(this.workingDir, 'requirements.txt');
-      if (fs.existsSync(reqFile)) {
-        const reqs = fs.readFileSync(reqFile, 'utf8');
-        if (reqs.includes('flask')) intent.framework = 'flask';
-        else if (reqs.includes('django')) intent.framework = 'django';
-        else if (reqs.includes('fastapi')) intent.framework = 'fastapi';
-      }
-    }
-
-    // Detect other languages
-    const files = fs.readdirSync(this.workingDir);
-    if (files.some(f => f.endsWith('.go'))) intent.language = 'go';
-    else if (files.some(f => f.endsWith('.rs'))) intent.language = 'rust';
-    else if (files.some(f => f.endsWith('.java'))) intent.language = 'java';
-    else if (files.some(f => f.endsWith('.rb'))) intent.language = 'ruby';
 
     // Check for tests
     intent.hasTests = this.hasTestDirectory();

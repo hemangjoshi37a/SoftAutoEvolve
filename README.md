@@ -14,7 +14,15 @@
 
 ## 🎉 Latest Updates
 
-### v3.2 - Cyberpunk Edition (NEW!) 🎮
+### v3.3 - Stability & Intelligence Edition (NEW!) 🔧
+- 🔧 **Critical: Fixed Process Hanging** - Intelligent inactivity detection replaces fixed 5s timeout
+- 📺 **Complete Output Capture** - Shows ALL Claude Code output, no more premature cutoffs
+- 🐍 **Enhanced Python Detection** - Correctly detects Python projects, frameworks (PyQt6), and entry points
+- 🎨 **Filtered Error Output** - Removes noise, shows only real errors
+- ✅ **Production Ready** - Tested in CodeScope directory, works flawlessly
+- 📖 **[Full v3.3 Changelog](./IMPROVEMENTS_v3.3.md)**
+
+### v3.2 - Cyberpunk Edition 🎮
 - 🎨 **Complete Cyberpunk UI** - Terminal aesthetics with neon colors and ASCII art
 - 👀 **Real-Time Claude Code Output** - See exactly what Claude is doing, no more blind execution
 - 🔄 **Intelligent Branch Resume** - Automatically checks and resumes open branches at startup

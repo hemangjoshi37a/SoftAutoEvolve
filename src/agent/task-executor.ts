@@ -112,10 +112,15 @@ export class TaskExecutor {
       let output = '';
       let errorOutput = '';
       let lineBuffer = '';
+      let stderrBuffer = '';
+      let lastOutputTime = Date.now();
+      let hasReceivedOutput = false;
 
       child.stdout.on('data', (data) => {
         const text = data.toString();
         output += text;
+        lastOutputTime = Date.now();
+        hasReceivedOutput = true;
 
         // Display output in real-time with indentation
         lineBuffer += text;
@@ -137,26 +142,72 @@ export class TaskExecutor {
       child.stderr.on('data', (data) => {
         const text = data.toString();
         errorOutput += text;
+        lastOutputTime = Date.now();
 
-        // Show errors in red
-        const lines = text.split('\n');
-        lines.forEach((line: string) => {
+        // Buffer stderr to avoid showing warnings immediately
+        stderrBuffer += text;
+        const lines = stderrBuffer.split('\n');
+
+        // Process all complete lines
+        for (let i = 0; i < lines.length - 1; i++) {
+          const line = lines[i];
           if (line.trim()) {
-            process.stdout.write(`   │ \x1b[31m✗\x1b[0m ${line}\n`);
+            // Filter out pre-flight check warnings - they're normal
+            if (!line.includes('Pre-flight check') && !line.includes('ANTHROPIC_LOG=debug')) {
+              process.stdout.write(`   │ \x1b[31m✗\x1b[0m ${line}\n`);
+            }
           }
-        });
+        }
+
+        // Keep the last incomplete line in buffer
+        stderrBuffer = lines[lines.length - 1];
       });
 
       // Send the prompt
       child.stdin.write(prompt + '\n');
 
-      // After a short delay, send exit command
-      setTimeout(() => {
+      // Monitor for inactivity and close when no output for 10 seconds
+      const inactivityCheckInterval = setInterval(() => {
+        const timeSinceLastOutput = Date.now() - lastOutputTime;
+
+        // If we've received output and there's been no activity for 10 seconds, close
+        if (hasReceivedOutput && timeSinceLastOutput > 10000) {
+          clearInterval(inactivityCheckInterval);
+          clearTimeout(maxTimeoutHandle);
+
+          // Flush any remaining buffered output
+          if (lineBuffer.trim()) {
+            process.stdout.write(`   │ \x1b[36m▸\x1b[0m ${lineBuffer}\n`);
+          }
+
+          child.stdin.write('exit\n');
+          child.stdin.end();
+        }
+      }, 1000);
+
+      // Maximum timeout of 120 seconds (2 minutes) as absolute safety
+      const maxTimeoutHandle = setTimeout(() => {
+        clearInterval(inactivityCheckInterval);
+
+        // Flush any remaining buffered output
+        if (lineBuffer.trim()) {
+          process.stdout.write(`   │ \x1b[36m▸\x1b[0m ${lineBuffer}\n`);
+        }
+
+        process.stdout.write(`   │ \x1b[33m⚠\x1b[0m  Maximum execution time reached, closing...\n`);
         child.stdin.write('exit\n');
         child.stdin.end();
-      }, 5000); // Give it 5 seconds to process
+      }, 120000);
 
       child.on('close', (code) => {
+        clearInterval(inactivityCheckInterval);
+        clearTimeout(maxTimeoutHandle);
+
+        // Flush any remaining buffered output
+        if (lineBuffer.trim()) {
+          process.stdout.write(`   │ \x1b[36m▸\x1b[0m ${lineBuffer}\n`);
+        }
+
         console.log('   └───────────────────────────────────────────────────┘\n');
 
         if (code === 0 || output.length > 0) {
@@ -167,6 +218,8 @@ export class TaskExecutor {
       });
 
       child.on('error', (error) => {
+        clearInterval(inactivityCheckInterval);
+        clearTimeout(maxTimeoutHandle);
         console.log('   └───────────────────────────────────────────────────┘\n');
         reject(new Error(`Failed to run Claude Code: ${error.message}`));
       });
