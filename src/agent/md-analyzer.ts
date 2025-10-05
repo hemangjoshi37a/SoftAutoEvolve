@@ -351,24 +351,91 @@ export class MDAnalyzer {
   /**
    * Generate actionable tasks from analysis
    */
-  public generateTasks(result: MDAnalysisResult): string[] {
+  public async generateTasks(result: MDAnalysisResult): Promise<string[]> {
     const tasks: string[] = [];
 
-    // Prioritize improvements
+    // Check git history to see what was already done
+    const recentCommits = await this.getRecentCommits();
+
+    // Prioritize improvements that haven't been done yet
     for (const improvement of result.improvements.slice(0, 5)) {
-      tasks.push(improvement);
+      if (!this.wasTaskCompleted(improvement, recentCommits)) {
+        tasks.push(improvement);
+      }
     }
 
-    // Add tasks for missing critical docs
+    // Add tasks for missing critical docs that weren't recently added
     const criticalDocs = result.missingDocs.filter((doc) =>
       doc.includes('README') || doc.includes('CONTRIBUTING') || doc.includes('LICENSE')
     );
     for (const doc of criticalDocs) {
-      if (!tasks.some((t) => t.toLowerCase().includes(doc.split(':')[0].toLowerCase()))) {
-        tasks.push(doc.split(':')[0]);
+      const docName = doc.split(':')[0];
+      if (!tasks.some((t) => t.toLowerCase().includes(docName.toLowerCase())) &&
+          !this.wasTaskCompleted(docName, recentCommits)) {
+        tasks.push(docName);
       }
     }
 
     return tasks;
+  }
+
+  /**
+   * Get recent commit messages to check what was already done
+   */
+  private async getRecentCommits(): Promise<string[]> {
+    const { exec } = await import('child_process');
+    const { promisify } = await import('util');
+    const execAsync = promisify(exec);
+
+    try {
+      // Get last 20 commits
+      const { stdout } = await execAsync('git log -20 --oneline', {
+        cwd: this.workingDir,
+      });
+      return stdout.split('\n').filter((line: string) => line.trim());
+    } catch (error) {
+      // No git history or error
+      return [];
+    }
+  }
+
+  /**
+   * Check if a task was already completed based on git history
+   */
+  private wasTaskCompleted(task: string, commits: string[]): boolean {
+    const taskLower = task.toLowerCase();
+
+    // Extract key words from the task
+    const keywords = taskLower
+      .replace(/^add\s+/i, '')
+      .replace(/^create\s+/i, '')
+      .split(/\s+/)
+      .filter((word) => word.length > 3); // Filter out short words
+
+    // Check if any recent commit mentions these keywords
+    for (const commit of commits) {
+      const commitLower = commit.toLowerCase();
+
+      // Check if commit matches the task
+      if (keywords.some((keyword) => commitLower.includes(keyword))) {
+        return true;
+      }
+
+      // Special checks for common files
+      if (taskLower.includes('contributing') && commitLower.includes('contributing')) {
+        return true;
+      }
+      if (taskLower.includes('changelog') && commitLower.includes('changelog')) {
+        return true;
+      }
+      if (taskLower.includes('license') && commitLower.includes('license')) {
+        return true;
+      }
+      if (taskLower.includes('ci/cd') && (commitLower.includes('ci') || commitLower.includes('pipeline'))) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }

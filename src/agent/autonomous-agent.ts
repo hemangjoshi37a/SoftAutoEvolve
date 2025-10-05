@@ -167,7 +167,7 @@ export class AutonomousAgent {
 
       // Add documentation improvement tasks from MD analysis
       if (this.mdAnalysisResult) {
-        const docTasks = this.mdAnalyzer.generateTasks(this.mdAnalysisResult);
+        const docTasks = await this.mdAnalyzer.generateTasks(this.mdAnalysisResult);
         // Add doc tasks with lower priority (add a few, not all)
         tasks = tasks.concat(docTasks.slice(0, 2));
       }
@@ -209,8 +209,8 @@ export class AutonomousAgent {
     // Display stats
     await this.displayStats();
 
-    // Notify cycle completion
-    await this.notifications.notifyCycleComplete(this.cycleCount, tasks.length);
+    // Notify cycle completion with task details
+    await this.notifications.notifyCycleComplete(this.cycleCount, tasks.length, tasks);
 
     console.log('└─────────────────────────────────────────┘\n');
 

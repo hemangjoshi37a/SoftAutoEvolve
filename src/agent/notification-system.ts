@@ -210,10 +210,30 @@ export class NotificationSystem {
   /**
    * Notify cycle completion
    */
-  public async notifyCycleComplete(cycleNumber: number, tasksCompleted: number): Promise<void> {
+  public async notifyCycleComplete(
+    cycleNumber: number,
+    tasksCompleted: number,
+    taskDescriptions?: string[]
+  ): Promise<void> {
+    let message = `Cycle ${cycleNumber} finished successfully!\nCompleted ${tasksCompleted} tasks.`;
+
+    // Add task details if provided
+    if (taskDescriptions && taskDescriptions.length > 0) {
+      message += '\n\nAccomplishments:';
+      for (let i = 0; i < Math.min(3, taskDescriptions.length); i++) {
+        const task = taskDescriptions[i];
+        // Truncate long task descriptions
+        const truncated = task.length > 50 ? task.substring(0, 47) + '...' : task;
+        message += `\n• ${truncated}`;
+      }
+      if (taskDescriptions.length > 3) {
+        message += `\n+ ${taskDescriptions.length - 3} more`;
+      }
+    }
+
     await this.notify(
       '🤖 Development Cycle Complete',
-      `Cycle ${cycleNumber} finished successfully!\nCompleted ${tasksCompleted} tasks.`,
+      message,
       NotificationType.SUCCESS
     );
   }
