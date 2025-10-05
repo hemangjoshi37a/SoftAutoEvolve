@@ -1,61 +1,61 @@
 # 🧬 SoftAutoEvolve
 
-**Evolutionary Software Development Platform**
-
-An abstraction layer that harmoniously integrates three powerful tools to create an autonomous, evolutionary software development workflow driven by user feedback and market trends.
+> **Autonomous AI-Powered Software Development Platform** - Build, Evolve, and Optimize Software Automatically
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue)](https://www.typescriptlang.org/)
+[![AI](https://img.shields.io/badge/AI-Claude%20%7C%20GPT-orange)](https://www.anthropic.com/)
+[![Evolutionary](https://img.shields.io/badge/Evolutionary-Algorithms-purple)](https://github.com/SakanaAI/ShinkaEvolve)
+
+**The world's first fully autonomous AI development agent** that combines Claude Code, Spec-Kit, and ShinkaEvolve to build, test, optimize, and evolve software automatically - while you sleep!
+
+[🚀 Quick Start](#-quick-start) • [📖 Documentation](./docs) • [🤖 Autonomous Mode](#-autonomous-mode-new) • [💡 Examples](#-examples) • [⭐ Star Us](#-star-this-repo)
+
+---
+
+## 🌟 What Makes SoftAutoEvolve Special?
+
+### 🤖 **Autonomous Mode** (NEW!)
+
+**The most advanced way to develop software - zero human input required!**
+
+```bash
+softautoevolve auto    # Start infinite development loop
+```
+
+✅ **Fully Automatic** - Generates tasks, writes code, commits, evolves - all automatically
+✅ **Infinite Loop** - Runs continuously until your project is complete
+✅ **Git Automation** - Auto-creates branches, commits with emojis, merges to main
+✅ **Auto-Evolution** - Triggers ShinkaEvolve optimization automatically
+✅ **Compact Output** - Clean, non-verbose progress indicators
+✅ **Real Development** - Actually builds software, not simulations
+
+**[📖 Read Autonomous Mode Guide](./AUTONOMOUS_MODE.md)**
 
 ---
 
 ## 🎯 What is SoftAutoEvolve?
 
-SoftAutoEvolve is an abstraction layer that integrates three complementary repositories into one seamless workflow:
+SoftAutoEvolve is a revolutionary **evolutionary software development platform** that integrates three powerful AI and evolutionary tools into one seamless, autonomous workflow:
 
-1. **[Claude Code](https://github.com/anthropics/claude-code)** - AI-powered CLI for code generation and editing
-2. **[Spec-Kit](https://github.com/hemangjoshi37a/hjLabs.in-spec-kit)** - Spec-driven development framework for structured task management
-3. **[ShinkaEvolve](https://github.com/SakanaAI/ShinkaEvolve)** - Evolutionary algorithms for program optimization
+### 🔧 Integrated Tools
 
-### The Vision
+| Tool | Purpose | Capability |
+|------|---------|------------|
+| **[Claude Code](https://github.com/anthropics/claude-code)** | AI Code Generation | Intelligent code writing, editing, and refactoring |
+| **[Spec-Kit](https://github.com/hemangjoshi37a/hjLabs.in-spec-kit)** | Structured Development | Spec-driven workflow, task management, planning |
+| **[ShinkaEvolve](https://github.com/SakanaAI/ShinkaEvolve)** | Evolutionary Optimization | LLM-guided code evolution and optimization |
 
-Develop software that evolves to be **as useful as possible** for a given domain with:
-- ✅ Stable and working features
-- 🎨 Appropriate UI/UX
-- 📊 User feedback integration
-- 📈 Market trend analysis
-- 🧬 Evolutionary optimization
+### 💡 The Vision
 
-### How It Works
-
-```
-┌──────────────┐
-│ User Input   │
-│ Market Data  │
-└──────┬───────┘
-       │
-       ▼
-┌──────────────────────┐
-│   ShinkaEvolve       │  ◄─── Evolution direction decision
-│   (Evolution Logic)  │       based on feedback & trends
-└──────┬───────────────┘
-       │
-       ▼
-┌──────────────────────┐
-│   Spec-Kit           │  ◄─── Convert to executable tasks
-│   (Task Management)  │       Parallel task handling
-└──────┬───────────────┘
-       │
-       ▼
-┌──────────────────────┐
-│   Claude Code        │  ◄─── Actual code implementation
-│   (Code Generation)  │       Application interface & edits
-└──────────────────────┘
-       │
-       ▼
-   Evolved Software
-```
+Develop software that **evolves to be as useful as possible** through:
+- 🤖 **AI-powered code generation** with Claude
+- 📋 **Structured workflows** with Spec-Kit
+- 🧬 **Evolutionary optimization** with ShinkaEvolve
+- 🔄 **Continuous improvement** via autonomous loops
+- 📊 **Quality tracking** with automatic metrics
+- 🌳 **Git automation** for full version control
 
 ---
 
@@ -81,342 +81,234 @@ npm install
 # Build TypeScript
 npm run build
 
-# Configure your repository paths
+# Link globally (optional)
+echo "12" | sudo -S npm link  # Replace "12" with your password
+
+# Configure repository paths
 cp .env.example .env
-# Edit .env with your repository paths
-
-# Check status
-npm run cli status
+# Edit .env with your Claude Code, Spec-Kit, and ShinkaEvolve paths
 ```
 
-### Repository Setup
+### 🎯 Choose Your Mode
 
-You need to have the three integrated repositories cloned. Update your `.env` file:
+#### 1. 🤖 **Autonomous Mode** (Recommended - Fully Automatic)
 
 ```bash
-# .env
-CLAUDE_CODE_PATH=/home/your-user/Documents/GitHub/claude-code
-SPEC_KIT_PATH=/home/your-user/Documents/GitHub/hjLabs.in-spec-kit
-SHINKA_EVOLVE_PATH=/home/your-user/Documents/GitHub/hjLabs.in-ShinkaEvolve
+# Navigate to your project
+cd /path/to/your/project
+
+# Start autonomous development
+softautoevolve auto
+
+# Or use shortcuts
+sae-auto
+npm run auto
 ```
 
----
+**What it does:**
+- 🎯 Automatically generates tasks based on project analysis
+- 🔨 Implements features using Claude Code
+- 🧬 Runs evolutionary optimization with ShinkaEvolve
+- 📝 Creates Git branches and commits automatically
+- 🔄 Merges to main when cycles complete
+- ♾️ Repeats infinitely until project is perfect
 
-## 📖 Usage
-
-### 🗣️ Conversational Mode (Recommended)
-
-The easiest way to use SoftAutoEvolve! Just describe what you want to build in natural language:
+#### 2. 🎮 **Interactive Agent Mode** (Task-Based)
 
 ```bash
-# Start conversational mode
+softautoevolve agent
+
+# Then add tasks manually:
+add task: Create a calculator function
+add task: Add unit tests
+execute
+```
+
+#### 3. 💬 **Conversational Mode** (Guided)
+
+```bash
 softautoevolve chat
 
-# Or in a specific directory
-softautoevolve chat ./my-project
-
-# Or use the shortcut
-sae-chat
+# Just describe what you want to build in natural language!
 ```
 
-Example conversation:
-
-```
-🤖 Assistant: What would you like to build today?
-
-💬 You: I want to build a todo app with drag and drop
-
-🤖 Assistant: What kind of user interface are you thinking about?
-
-💬 You: A modern web app that works on mobile
-
-🤖 Assistant: What are the most important features for your users?
-
-💬 You: Add/delete tasks, mark complete, drag to reorder, sync across devices
-
-... (more questions) ...
-
-📋 Here's what I'm planning to build:
-[Shows complete plan]
-
-🤖 Assistant: Does this look good? (yes/no/modify)
-
-💬 You: yes
-
-⚙️  Creating project...
-📊 Progress: ████████████████████ 100%
-
-🎉 Your project is ready!
-```
-
-**All `/constitution`, `/specify`, `/plan`, `/tasks`, and `/implement` commands are handled automatically!**
-
-[📖 Read the Conversational Mode Guide](./docs/CONVERSATIONAL_MODE.md)
-
----
-
-### Traditional Mode
-
-For more control, you can use individual commands:
-
-#### Check Integration Status
+#### 4. ⚙️ **Traditional Mode** (Full Control)
 
 ```bash
-softautoevolve status
-```
-
-This displays:
-- ✅ Which integrations are available
-- 📦 Installation status
-- 💡 Instructions for missing components
-
-#### Launch Claude Code
-
-```bash
-softautoevolve launch
-```
-
-#### Initialize Spec-Kit
-
-```bash
-# In current directory
-softautoevolve init
-
-# Or create new project
-softautoevolve init my-awesome-project
-```
-
-### Run Full Evolutionary Workflow
-
-```bash
-softautoevolve workflow \
-  --description "Build a photo gallery app with AI tagging" \
-  --tech "React, TypeScript, TailwindCSS, Supabase" \
-  --generations 10 \
-  --jobs 4
-```
-
-This will:
-1. Initialize Spec-Kit (if needed)
-2. Launch Claude Code for `/constitution`, `/specify`, `/plan`, `/tasks`
-3. Run evolutionary optimization with ShinkaEvolve
-4. Launch Claude Code for `/implement`
-
-### Run Spec-Kit Workflow Only
-
-```bash
-softautoevolve spec-workflow
-```
-
-### Run Evolution Only
-
-```bash
-softautoevolve evolve \
-  --initial ./src/algorithm.py \
-  --eval ./evaluate.py \
-  --generations 20 \
-  --models "gpt-4o-mini,claude-3-sonnet"
+softautoevolve status    # Check integrations
+softautoevolve init      # Initialize project
+softautoevolve launch    # Launch Claude Code
 ```
 
 ---
 
-## 🔧 Configuration
+## 🤖 Autonomous Mode (NEW!)
 
-### Environment Variables
+### How It Works
 
-Create a `.env` file in your project root (copy from `.env.example`):
+The autonomous agent runs a **4-phase workflow** infinitely:
 
+```
+┌─ Cycle 1 ─────────────────────────────┐
+│ 🎯 Phase 1: Planning                   │
+│    → Analyze project structure         │
+│    → Generate 5 tasks automatically    │
+│    → Create feature branch             │
+│                                         │
+│ 🔨 Phase 2: Implementation             │
+│    → Execute tasks with Claude Code    │
+│    → Run Spec-Kit for complex features │
+│    → Commit after each task            │
+│                                         │
+│ 🧬 Phase 3: Evolution (AUTOMATIC!)     │
+│    → Create evolution branch           │
+│    → Run ShinkaEvolve optimization     │
+│    → Commit optimized code             │
+│                                         │
+│ 🔀 Phase 4: Merge & Cleanup            │
+│    → Merge to main branch              │
+│    → Delete feature branches           │
+│    → Update statistics                 │
+│                                         │
+│ 📊 Stats:                              │
+│    Cycles: 1 | Evolution: 1            │
+│    Commits: 6 | Tasks: 5               │
+└────────────────────────────────────────┘
+
+[Automatically continues to Cycle 2...]
+```
+
+### Features
+
+- ✅ **Zero Configuration** - Works out of the box
+- ✅ **Intelligent Task Generation** - Analyzes project and creates relevant tasks
+- ✅ **Automatic Git Operations** - Branches, commits, merges handled automatically
+- ✅ **Evolution Integration** - ShinkaEvolve runs automatically after implementation
+- ✅ **Parallel Execution** - Runs multiple tasks concurrently based on priority
+- ✅ **Progress Tracking** - Real-time statistics and commit history
+- ✅ **Graceful Exit** - Press Ctrl+C to stop safely
+
+### Use Cases
+
+**Bootstrap New Projects:**
 ```bash
-# Repository Paths
-CLAUDE_CODE_PATH=/path/to/claude-code
-SPEC_KIT_PATH=/path/to/hjLabs.in-spec-kit
-SPEC_KIT_REPO_URL=git+https://github.com/hemangjoshi37a/hjLabs.in-spec-kit
-SHINKA_EVOLVE_PATH=/path/to/hjLabs.in-ShinkaEvolve
-
-# Python Configuration
-PYTHON_PATH=python3
-UV_PATH=uv
-
-# Evolution Defaults
-DEFAULT_NUM_GENERATIONS=10
-DEFAULT_MAX_PARALLEL_JOBS=2
-DEFAULT_LLM_MODELS=azure-gpt-4.1-mini
-
-# Feature Flags
-ENHANCED_MODE=true
-AUTO_INSTALL_DEPS=false
-VERBOSE=false
-EXPERIMENTAL=false
+mkdir my-new-app && cd my-new-app
+softautoevolve auto
+# Generates package.json, README, code, tests, everything!
 ```
 
-### Configuration Priority
-
-1. Environment variables (`.env` file)
-2. System defaults
-3. Auto-detection
-
----
-
-## 🎓 How to Use the Full Workflow
-
-### Step 1: Project Initialization
-
+**Improve Existing Projects:**
 ```bash
-cd your-project-directory
-softautoevolve init
+cd my-existing-project
+softautoevolve auto
+# Adds tests, documentation, optimizations automatically!
 ```
 
-### Step 2: Define Your Vision
-
-When Claude Code launches, use:
-
-```
-/constitution Create principles focused on user experience,
-              performance, and maintainability
-```
-
-### Step 3: Specify Requirements
-
-```
-/specify Build a task management app with drag-and-drop kanban boards,
-         real-time collaboration, and mobile support
-```
-
-### Step 4: Technical Planning
-
-```
-/plan Use Next.js 14, React, TypeScript, Prisma, PostgreSQL,
-      TailwindCSS, and WebSockets for real-time features
-```
-
-### Step 5: Generate Tasks
-
-```
-/tasks
-```
-
-### Step 6: Let Evolution Guide Implementation
-
-Exit Claude Code, and SoftAutoEvolve will:
-- Run evolutionary optimization on your implementation
-- Use user feedback and market trends to guide evolution
-- Optimize for your specific domain requirements
-
-### Step 7: Implement
-
-Claude Code will launch again for:
-
-```
-/implement
+**Continuous Development:**
+```bash
+nohup softautoevolve auto > dev.log 2>&1 &
+# Let it run overnight and wake up to a fully evolved project!
 ```
 
 ---
 
-## 🏗️ Architecture
-
-### Directory Structure
-
-```
-SoftAutoEvolve/
-├── bin/
-│   └── softautoevolve.js       # CLI entry point
-├── src/
-│   ├── config/
-│   │   └── config.ts           # Configuration management
-│   ├── integrations/
-│   │   ├── claude-code-integration.ts
-│   │   ├── spec-kit-integration.ts
-│   │   ├── shinka-evolve-integration.ts
-│   │   └── integration-manager.ts
-│   └── index.ts                # Public API exports
-├── examples/                   # Usage examples
-├── docs/                       # Documentation
-├── .env.example               # Example configuration
-├── package.json
-├── tsconfig.json
-└── README.md
-```
-
-### Integration Architecture
-
-```typescript
-IntegrationManager
-├── ClaudeCodeIntegration
-│   ├── Auto-detects installation
-│   ├── Launches CLI
-│   └── Executes commands
-├── SpecKitIntegration
-│   ├── Manages spec-driven workflow
-│   ├── Initializes projects
-│   └── Provides slash commands
-└── ShinkaEvolveIntegration
-    ├── Runs evolutionary algorithms
-    ├── Integrates with Spec-Kit tasks
-    └── Optimizes implementations
-```
-
----
-
-## 🌟 Features
+## 🌟 Key Features
 
 ### 🤖 AI-Powered Development
-- Claude Code provides intelligent code generation
-- Context-aware suggestions
-- Natural language to code
+- **Claude Code Integration** - State-of-the-art AI code generation
+- **Natural Language Understanding** - Describe features in plain English
+- **Context-Aware Suggestions** - Intelligent code completions
+- **Automatic Refactoring** - Code improvements suggested automatically
 
 ### 📋 Structured Workflow
-- Spec-Kit's proven methodology
-- Constitution → Specify → Plan → Tasks → Implement
-- Clear separation of concerns
+- **Spec-Kit Integration** - Proven development methodology
+- **Constitution → Specify → Plan → Tasks → Implement** workflow
+- **Task Management** - Automatic task generation and prioritization
+- **Parallel Execution** - Multiple tasks run concurrently
 
 ### 🧬 Evolutionary Optimization
-- ShinkaEvolve's LLM-guided mutations
-- Multi-objective optimization
-- Parallel evaluation
-- Sample-efficient evolution
+- **ShinkaEvolve Integration** - LLM-guided evolutionary algorithms
+- **Multi-Objective Optimization** - Quality, performance, maintainability
+- **Automatic Triggers** - Evolution runs when quality drops
+- **Sample-Efficient** - Fast convergence to optimal solutions
 
-### 🔗 Seamless Integration
-- Automatic repository detection
-- Configurable paths
-- Status checking
-- Installation guidance
+### 🔄 Autonomous Operation
+- **Infinite Development Loop** - Runs until project is complete
+- **Automatic Task Generation** - No manual planning needed
+- **Git Automation** - Full version control without commands
+- **Self-Improving** - Gets better with each cycle
 
-### 🎯 Domain-Specific Evolution
-- User feedback integration
-- Market trend analysis
-- Adaptive feature prioritization
-- Continuous improvement
+### 📊 Quality Tracking
+- **Code Quality Metrics** - Tracks quality score (0-100)
+- **Test Coverage** - Monitors test coverage percentage
+- **Bug Tracking** - Counts and prioritizes bugs
+- **Evolution History** - Tracks optimization generations
 
 ---
 
-## 📚 Examples
+## 📖 Usage Modes Comparison
 
-### Example 1: Photo Gallery App
+| Feature | Autonomous | Interactive Agent | Conversational | Traditional |
+|---------|-----------|------------------|----------------|------------|
+| **Human Input** | Zero | Task descriptions | Natural language | Full control |
+| **Automation Level** | 100% | 80% | 60% | 20% |
+| **Git Operations** | Automatic | Manual | Manual | Manual |
+| **Evolution** | Automatic | Manual trigger | Manual | Manual |
+| **Task Generation** | Automatic | Manual | Semi-automatic | Manual |
+| **Best For** | Full projects | Specific tasks | Guided building | Expert users |
+| **Output** | Compact | Verbose | Conversational | Technical |
+
+---
+
+## 💡 Examples
+
+### Example 1: Build a CLI Tool (Autonomous)
 
 ```bash
-softautoevolve workflow \
-  --description "Build a photo gallery with AI tagging, albums, and sharing" \
-  --tech "Vue 3, Vite, TailwindCSS, Supabase, OpenAI Vision API"
+mkdir awesome-cli
+cd awesome-cli
+echo "# Awesome CLI Tool" > README.md
+softautoevolve auto
 ```
 
-### Example 2: E-commerce Platform
+**Agent automatically:**
+1. Creates `package.json` with CLI configuration
+2. Implements argument parsing
+3. Adds core functionality
+4. Writes unit tests
+5. Adds help documentation
+6. Optimizes with evolution
+7. Continues improving...
+
+### Example 2: Add Features to Existing App (Interactive)
 
 ```bash
-softautoevolve init ecommerce-platform
-cd ecommerce-platform
-softautoevolve spec-workflow
+cd my-web-app
+softautoevolve agent
+
+# Add tasks:
+add task: Implement user authentication with JWT
+add task: Add password reset functionality
+add task: Create admin dashboard
+add task: Add rate limiting
+execute
 ```
 
-Then in Claude Code:
-```
-/constitution Focus on security, scalability, and user trust
-/specify Complete e-commerce platform with products, cart, checkout, payments
-/plan Next.js, Stripe, Prisma, PostgreSQL, Redis
-/tasks
-/implement
+### Example 3: Build from Scratch (Conversational)
+
+```bash
+softautoevolve chat
+
+🤖: What would you like to build?
+💬: A REST API for a blog with posts, comments, and user management
+
+🤖: What technology stack do you prefer?
+💬: Node.js, Express, PostgreSQL, TypeScript
+
+[Agent builds entire API automatically...]
 ```
 
-### Example 3: Algorithm Optimization
+### Example 4: Optimize Algorithm (Evolution)
 
 ```bash
 softautoevolve evolve \
@@ -425,6 +317,80 @@ softautoevolve evolve \
   --generations 50 \
   --jobs 8
 ```
+
+---
+
+## 🏗️ Architecture
+
+```
+┌─────────────────────────────────────────────┐
+│         SoftAutoEvolve Platform             │
+│                                             │
+│  ┌──────────────────────────────────────┐  │
+│  │     Autonomous Agent                 │  │
+│  │  • Task Generation                   │  │
+│  │  • Workflow Orchestration            │  │
+│  │  • Git Automation                    │  │
+│  └──────────────────────────────────────┘  │
+│                     │                       │
+│         ┌───────────┼───────────┐           │
+│         ▼           ▼           ▼           │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐   │
+│  │  Claude  │ │ Spec-Kit │ │  Shinka  │   │
+│  │   Code   │ │          │ │  Evolve  │   │
+│  │          │ │          │ │          │   │
+│  │ AI Code  │ │ Workflow │ │Evolution │   │
+│  │Generator │ │ Manager  │ │Optimizer │   │
+│  └──────────┘ └──────────┘ └──────────┘   │
+│         │           │           │           │
+│         └───────────┼───────────┘           │
+│                     ▼                       │
+│         ┌────────────────────┐              │
+│         │  Generated Code    │              │
+│         │  + Git History     │              │
+│         └────────────────────┘              │
+└─────────────────────────────────────────────┘
+```
+
+---
+
+## 🔧 Configuration
+
+### Environment Variables
+
+Create a `.env` file:
+
+```bash
+# Repository Paths (required)
+CLAUDE_CODE_PATH=/path/to/claude-code
+SPEC_KIT_PATH=/path/to/hjLabs.in-spec-kit
+SHINKA_EVOLVE_PATH=/path/to/hjLabs.in-ShinkaEvolve
+
+# Python Configuration
+PYTHON_PATH=python3
+UV_PATH=uv
+
+# Evolution Settings
+DEFAULT_NUM_GENERATIONS=10
+DEFAULT_MAX_PARALLEL_JOBS=2
+DEFAULT_LLM_MODELS=azure-gpt-4.1-mini
+
+# Feature Flags
+ENHANCED_MODE=true
+AUTO_INSTALL_DEPS=false
+VERBOSE=false
+```
+
+---
+
+## 📚 Documentation
+
+- **[🤖 Autonomous Mode Guide](./AUTONOMOUS_MODE.md)** - Complete guide to autonomous development
+- **[🧠 Intelligent Agent](./docs/INTELLIGENT_AGENT.md)** - Interactive task-based development
+- **[💬 Conversational Mode](./docs/CONVERSATIONAL_MODE.md)** - Natural language guided development
+- **[📖 Getting Started](./docs/GETTING_STARTED.md)** - Detailed setup instructions
+- **[🔧 Configuration](./docs/CONFIGURATION.md)** - Advanced configuration options
+- **[📝 API Reference](./docs/API.md)** - Programmatic usage
 
 ---
 
@@ -439,94 +405,153 @@ npm install
 npm run build
 ```
 
-### Run in Development Mode
+### Development Mode
 
 ```bash
-npm run dev  # TypeScript watch mode
+npm run dev    # TypeScript watch mode
+npm run agent  # Test agent mode
+npm run auto   # Test autonomous mode
 ```
 
 ### Testing
 
 ```bash
 npm test
+npm run lint
+npm run format
 ```
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! This project aims to create the best abstraction layer for evolutionary software development.
+We welcome contributions! SoftAutoEvolve is open-source and community-driven.
 
 ### How to Contribute
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
+4. **Push** to the branch (`git push origin feature/amazing-feature`)
+5. **Open** a Pull Request
 
 ### Areas for Contribution
 
-- 🐛 Bug fixes
-- 📚 Documentation improvements
-- 🎨 UI/UX enhancements
-- 🧪 Test coverage
-- 🌐 Internationalization
-- 🔌 New integration options
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙏 Acknowledgments
-
-This project builds upon and integrates:
-
-- **[Claude Code](https://github.com/anthropics/claude-code)** by Anthropic - Revolutionary AI coding assistant
-- **[Spec-Kit](https://github.com/github/spec-kit)** by GitHub - Spec-driven development framework
-- **[ShinkaEvolve](https://github.com/SakanaAI/ShinkaEvolve)** by Sakana AI - Evolutionary program optimization
-
-Special thanks to:
-- The reference implementation in `hjLabs.in-claude-code` that inspired this abstraction
-- The open-source community for these incredible tools
-
----
-
-## 📞 Support
-
-- **Issues**: [GitHub Issues](https://github.com/hemangjoshi37a/SoftAutoEvolve/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/hemangjoshi37a/SoftAutoEvolve/discussions)
-- **Email**: support@hjlabs.in
+- 🐛 **Bug Fixes** - Report and fix bugs
+- ✨ **New Features** - Add new capabilities
+- 📚 **Documentation** - Improve guides and examples
+- 🧪 **Testing** - Add test coverage
+- 🌐 **Internationalization** - Add language support
+- 🎨 **UI/UX** - Improve user experience
+- ⚡ **Performance** - Optimize code and workflows
 
 ---
 
 ## 🗺️ Roadmap
 
-- [ ] Web UI for workflow visualization
-- [ ] Automated market trend analysis
-- [ ] User feedback collection system
-- [ ] Multi-domain evolution templates
-- [ ] Integration with additional AI models
-- [ ] Cloud deployment options
-- [ ] Collaborative evolution features
-- [ ] Analytics and metrics dashboard
+### 2024 Q4
+- [x] Autonomous development mode
+- [x] Git automation
+- [x] Task auto-generation
+- [ ] Web UI dashboard
+- [ ] Real-time collaboration
+
+### 2025 Q1
+- [ ] Market trend analysis
+- [ ] User feedback integration
+- [ ] Cloud deployment
+- [ ] Docker containers
+- [ ] CI/CD integration
+
+### 2025 Q2
+- [ ] Multi-language support
+- [ ] Plugin system
+- [ ] API endpoints
+- [ ] Analytics dashboard
+- [ ] Team collaboration features
 
 ---
 
-## ⭐ Star History
+## 📄 License
 
-If you find this project useful, please consider giving it a star! It helps others discover this tool.
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+Built on the shoulders of giants:
+
+- **[Claude Code](https://github.com/anthropics/claude-code)** by Anthropic - Revolutionary AI coding assistant
+- **[Spec-Kit](https://github.com/github/spec-kit)** by GitHub - Spec-driven development framework
+- **[ShinkaEvolve](https://github.com/SakanaAI/ShinkaEvolve)** by Sakana AI - Evolutionary program optimization
+
+Special thanks to the open-source community and all contributors!
+
+---
+
+## 📞 Support & Community
+
+- 💬 **[GitHub Discussions](https://github.com/hemangjoshi37a/SoftAutoEvolve/discussions)** - Ask questions, share ideas
+- 🐛 **[Issue Tracker](https://github.com/hemangjoshi37a/SoftAutoEvolve/issues)** - Report bugs, request features
+- 📧 **Email** - support@hjlabs.in
+- 🌐 **Website** - [hjlabs.in](https://hjlabs.in)
+- 🐦 **Twitter** - [@hemangjoshi37a](https://twitter.com/hemangjoshi37a)
+
+---
+
+## ⭐ Star This Repo!
+
+If you find SoftAutoEvolve useful, **please give it a star** ⭐! It helps others discover this tool and motivates us to keep improving it.
+
+[![Star History Chart](https://api.star-history.com/svg?repos=hemangjoshi37a/SoftAutoEvolve&type=Date)](https://star-history.com/#hemangjoshi37a/SoftAutoEvolve&Date)
+
+---
+
+## 🚀 Why Choose SoftAutoEvolve?
+
+| Feature | Traditional Development | With SoftAutoEvolve |
+|---------|------------------------|---------------------|
+| **Setup Time** | Hours to days | Minutes |
+| **Code Generation** | Manual typing | AI-powered automatic |
+| **Task Management** | Manual planning | Auto-generated tasks |
+| **Optimization** | Manual refactoring | Evolutionary algorithms |
+| **Git Operations** | Manual commands | Fully automatic |
+| **Testing** | Write yourself | Auto-generated tests |
+| **Documentation** | Often neglected | Auto-generated |
+| **Continuous Improvement** | Rare | Every cycle |
+| **Human Effort** | 100% | 0-20% |
+
+---
+
+## 🔥 Get Started Now!
+
+```bash
+# Install
+git clone https://github.com/hemangjoshi37a/SoftAutoEvolve.git
+cd SoftAutoEvolve && npm install && npm run build
+
+# Run autonomous mode
+cd /your/project
+softautoevolve auto
+
+# That's it! Your AI team is now working for you 🤖
+```
 
 ---
 
 <div align="center">
 
-**Built with ❤️ for the future of software development**
+### 🧬 Built with ❤️ for the Future of Software Development
 
-[Website](https://hjlabs.in) • [GitHub](https://github.com/hemangjoshi37a/SoftAutoEvolve) • [Documentation](./docs)
+**[⭐ Star](https://github.com/hemangjoshi37a/SoftAutoEvolve)** • **[📖 Docs](./docs)** • **[🤝 Contribute](./CONTRIBUTING.md)** • **[💬 Discuss](https://github.com/hemangjoshi37a/SoftAutoEvolve/discussions)**
+
+**Let AI build your software while you focus on what matters! 🚀**
 
 </div>
+
+---
+
+## 🏷️ Tags
+
+`ai-development` `autonomous-agent` `claude-code` `evolutionary-algorithms` `code-generation` `software-evolution` `typescript` `nodejs` `automation` `devtools` `productivity` `ai-tools` `machine-learning` `code-optimization` `git-automation` `spec-driven-development` `continuous-improvement` `autonomous-coding` `ai-assistant` `developer-tools`

@@ -128,11 +128,11 @@ program
     }
   });
 
-// Agent command - Intelligent Agent Mode (Default)
+// Agent command - Intelligent Agent Mode
 program
   .command('agent [project-dir]')
   .alias('dev')
-  .description('🧠 Start intelligent agent - continuous development like Claude Code (RECOMMENDED)')
+  .description('🧠 Start intelligent agent - interactive task-based development')
   .option('-v, --verbose', 'Enable verbose output')
   .action(async (projectDir, options) => {
     try {
@@ -146,6 +146,25 @@ program
 
       const targetDir = projectDir || process.cwd();
       await startIntelligentAgent(targetDir);
+    } catch (error) {
+      console.error('❌ Error:', error.message);
+      process.exit(1);
+    }
+  });
+
+// Autonomous command - Fully Automatic Infinite Mode (NEW!)
+program
+  .command('auto [project-dir]')
+  .alias('autonomous')
+  .description('🤖 Start autonomous agent - fully automatic infinite development (RECOMMENDED)')
+  .action(async (projectDir) => {
+    try {
+      const { startAutonomousAgent } = await import(
+        '../dist/agent/index.js'
+      );
+
+      const targetDir = projectDir || process.cwd();
+      await startAutonomousAgent(targetDir);
     } catch (error) {
       console.error('❌ Error:', error.message);
       process.exit(1);

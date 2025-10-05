@@ -8,7 +8,8 @@
     "softautoevolve": "./bin/softautoevolve.js",
     "sae": "./bin/softautoevolve.js",
     "sae-chat": "./bin/sae-chat.js",
-    "sae-agent": "./bin/sae-agent.js"
+    "sae-agent": "./bin/sae-agent.js",
+    "sae-auto": "./bin/sae-auto.js"
   },
   "scripts": {
     "build": "tsc",
@@ -17,6 +18,7 @@
     "cli": "node bin/softautoevolve.js",
     "chat": "node bin/sae-chat.js",
     "agent": "node bin/sae-agent.js",
+    "auto": "node bin/sae-auto.js",
     "test": "node dist/test.js",
     "setup": "npm install && npm run build"
   },

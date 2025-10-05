@@ -4,6 +4,8 @@ import { integrationManager } from '../integrations/integration-manager.js';
 import { specKitIntegration } from '../integrations/spec-kit-integration.js';
 import { shinkaEvolveIntegration } from '../integrations/shinka-evolve-integration.js';
 import { config } from '../config/config.js';
+import { TaskManager, Task } from './task-manager.js';
+import { TaskExecutor } from './task-executor.js';
 
 /**
  * Intelligent Development Agent
@@ -42,6 +44,9 @@ export class IntelligentDevelopmentAgent {
   private rl: readline.Interface;
   private context: AgentContext;
   private running: boolean = false;
+  private taskManager: TaskManager;
+  private taskExecutor: TaskExecutor | null = null;
+  private projectDir: string = '';
 
   constructor() {
     this.rl = readline.createInterface({
@@ -61,6 +66,22 @@ export class IntelligentDevelopmentAgent {
       bugCount: 0,
       featureRequests: [],
     };
+
+    this.taskManager = new TaskManager();
+
+    // Listen to task events
+    this.taskManager.on('task:added', (task: Task) => {
+      console.log(`\n✅ Task added: ${task.id} - ${task.description}`);
+    });
+
+    this.taskManager.on('task:completed', (task: Task) => {
+      console.log(`\n✅ Task completed: ${task.id}`);
+      this.updateContextFromTask(task);
+    });
+
+    this.taskManager.on('task:failed', (task: Task) => {
+      console.log(`\n❌ Task failed: ${task.id} - ${task.error}`);
+    });
   }
 
   /**
@@ -68,7 +89,12 @@ export class IntelligentDevelopmentAgent {
    */
   public async start(projectDir: string): Promise<void> {
     this.running = true;
+    this.projectDir = projectDir;
+    this.taskExecutor = new TaskExecutor(projectDir);
+
     this.displayWelcome();
+
+    console.log(`📁 Project Directory: ${projectDir}\n`);
 
     // Check integrations
     const status = integrationManager.getStatus();
@@ -78,7 +104,15 @@ export class IntelligentDevelopmentAgent {
       process.exit(1);
     }
 
-    console.log('\n🤖 Intelligent Development Agent Started');
+    console.log('💡 Quick Tips:');
+    console.log('   • Describe tasks naturally or use "add task: <description>"');
+    console.log('   • Type "tasks" to see your task list');
+    console.log('   • Type "execute" to run pending tasks');
+    console.log('   • Type "status" to see project health');
+    console.log('   • Type "help" for more commands');
+    console.log('   • Type "exit" to quit\n');
+
+    console.log('🤖 Intelligent Development Agent Started');
     console.log('   I\'ll help you build, optimize, and maintain your software.');
     console.log('   Just tell me what you need, and I\'ll handle the rest.\n');
 
@@ -325,42 +359,87 @@ export class IntelligentDevelopmentAgent {
   private async executeDecision(decision: Decision, projectDir: string): Promise<void> {
     this.displayAgentThinking(decision);
 
-    try {
-      switch (decision.action) {
-        case 'initialize_project':
-          await this.initializeProject(projectDir);
-          break;
+    // Create a task for this action and execute it
+    const taskDescription = this.getLastUserMessage();
+    const task = this.createTaskFromDecision(decision, taskDescription);
 
-        case 'create_specification':
-          await this.createSpecification(projectDir);
-          break;
+    // Add the task
+    this.taskManager.addTask(task.description, {
+      type: task.type,
+      priority: task.priority,
+      tool: task.tool,
+    });
 
-        case 'fix_bug':
-          await this.fixBug(projectDir, decision);
-          break;
+    // Ask if user wants to execute now
+    console.log('\n💬 Execute this task now? (yes/no/add more tasks)');
+    const response = await this.getUserInput('   > ');
 
-        case 'optimize_code':
-          await this.optimizeCode(projectDir);
-          break;
-
-        case 'improve_quality':
-          await this.improveQuality(projectDir);
-          break;
-
-        case 'refactor':
-          await this.refactorCode(projectDir, decision);
-          break;
-
-        case 'develop':
-        case 'respond':
-        default:
-          await this.generalDevelopment(projectDir, decision);
-          break;
-      }
-    } catch (error: any) {
-      console.error(`\n❌ Error: ${error.message}`);
-      this.displayAssistant('I encountered an issue. Let me try a different approach.');
+    if (response.toLowerCase() === 'yes' || response.toLowerCase() === 'y') {
+      await this.executeAllPendingTasks();
+    } else if (response.toLowerCase() === 'no' || response.toLowerCase() === 'n') {
+      console.log('\n✅ Task added. Type "execute" when ready to run tasks.\n');
+    } else {
+      console.log('\n✅ Task added. You can add more tasks and execute them together.\n');
     }
+  }
+
+  /**
+   * Create a task object from a decision
+   */
+  private createTaskFromDecision(
+    decision: Decision,
+    description: string
+  ): {
+    description: string;
+    type: Task['type'];
+    priority: Task['priority'];
+    tool?: Task['tool'];
+  } {
+    let type: Task['type'] = 'general';
+    let tool: Task['tool'] | undefined = undefined;
+
+    switch (decision.action) {
+      case 'initialize_project':
+        type = 'feature';
+        tool = 'spec-kit';
+        break;
+      case 'create_specification':
+        type = 'feature';
+        tool = 'spec-kit';
+        break;
+      case 'fix_bug':
+        type = 'bug_fix';
+        tool = 'claude';
+        break;
+      case 'optimize_code':
+        type = 'optimization';
+        tool = 'shinka-evolve';
+        break;
+      case 'improve_quality':
+        type = 'test';
+        tool = 'claude';
+        break;
+      case 'refactor':
+        type = 'refactor';
+        tool = decision.useEvolution ? 'all' : 'claude';
+        break;
+      case 'develop':
+        type = 'feature';
+        tool = decision.useSpecKit ? 'all' : 'claude';
+        break;
+    }
+
+    // If decision wants to use all tools
+    if (decision.useSpecKit && decision.useEvolution) {
+      tool = 'all';
+    }
+
+    return {
+      description,
+      type,
+      priority: decision.priority,
+      tool,
+    };
   }
 
   private displayAgentThinking(decision: Decision): void {
@@ -528,6 +607,31 @@ export class IntelligentDevelopmentAgent {
       return true;
     }
 
+    // Task management commands
+    if (cmd === 'tasks' || cmd === 'list tasks' || cmd === 'show tasks') {
+      this.taskManager.displayTasks();
+      return true;
+    }
+
+    if (cmd === 'execute' || cmd === 'run' || cmd === 'execute tasks') {
+      this.executeAllPendingTasks().catch((error) => {
+        console.error(`\n❌ Error executing tasks: ${error.message}`);
+      });
+      return true;
+    }
+
+    if (cmd.startsWith('add task:') || cmd.startsWith('task:')) {
+      const taskDesc = cmd.replace(/^(add )?task:\s*/, '');
+      this.handleAddTask(taskDesc);
+      return true;
+    }
+
+    if (cmd === 'clear tasks') {
+      this.taskManager.clearTasks();
+      console.log('\n✅ All tasks cleared.\n');
+      return true;
+    }
+
     return false;
   }
 
@@ -558,16 +662,21 @@ export class IntelligentDevelopmentAgent {
     console.log(`
 📖 Intelligent Agent Help:
 
-Commands:
-  status    - Show project status
-  context   - Show current context
-  help      - Show this help
-  exit      - Exit the agent
+Project Commands:
+  status        - Show project health and metrics
+  context       - Show current development context
+  help          - Show this help
+  exit          - Exit the agent (or quit)
 
-Usage:
-  Just tell me what you want to do in natural language!
+Task Management Commands:
+  tasks         - Show all tasks in the list
+  add task: ... - Add a task to the list
+  execute       - Execute all pending tasks
+  clear tasks   - Clear all tasks
 
-Examples:
+Usage Examples:
+
+Natural Language:
   "I want to build a recipe app"
   "Add authentication to the app"
   "There's a bug in the login"
@@ -575,12 +684,25 @@ Examples:
   "Add tests for the API"
   "Refactor the user module"
 
-I'll automatically:
-  ✓ Decide when to use Spec-Kit for structure
-  ✓ Trigger evolution when beneficial
-  ✓ Prioritize bugs and features
-  ✓ Maintain code quality
-  ✓ Keep you informed of my reasoning
+Task Management:
+  "add task: Create user registration"
+  "add task: Fix memory leak in data processing"
+  "add task: Optimize database queries"
+  "tasks"      (shows all tasks)
+  "execute"    (runs all pending tasks)
+
+The agent will:
+  ✓ Automatically decide which tools to use (Claude, Spec-Kit, ShinkaEvolve)
+  ✓ Create tasks from your descriptions
+  ✓ Prioritize bugs vs features
+  ✓ Execute tasks in parallel when possible
+  ✓ Track completion and update project health
+  ✓ Keep you informed of progress
+
+Task Execution:
+  - High priority tasks run first (sequentially)
+  - Medium priority tasks run in parallel (up to 2 at once)
+  - Low priority tasks run in parallel (up to 3 at once)
 `);
   }
 
@@ -621,6 +743,132 @@ I'll automatically:
 
   private delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  /**
+   * Handle adding a task from user input
+   */
+  private handleAddTask(description: string): void {
+    const intent = this.detectIntent(description);
+    let type: Task['type'] = 'general';
+    let priority: Task['priority'] = 'medium';
+
+    // Map intent to task type
+    switch (intent) {
+      case 'new_feature':
+        type = 'feature';
+        break;
+      case 'bug_fix':
+        type = 'bug_fix';
+        priority = 'high';
+        break;
+      case 'optimize':
+        type = 'optimization';
+        break;
+      case 'test':
+        type = 'test';
+        break;
+      case 'refactor':
+        type = 'refactor';
+        break;
+    }
+
+    this.taskManager.addTask(description, { type, priority });
+  }
+
+  /**
+   * Execute all pending tasks
+   */
+  private async executeAllPendingTasks(): Promise<void> {
+    if (!this.taskExecutor) {
+      console.error('\n❌ Task executor not initialized');
+      return;
+    }
+
+    const executableTasks = this.taskManager.getParallelExecutableTasks();
+
+    if (executableTasks.length === 0) {
+      console.log('\n✅ No tasks to execute.\n');
+      return;
+    }
+
+    console.log(`\n🚀 Executing ${executableTasks.length} tasks...\n`);
+
+    // Execute tasks based on priority
+    // High priority tasks first, sequentially
+    const highPriority = executableTasks.filter((t) => t.priority === 'high');
+    const mediumPriority = executableTasks.filter((t) => t.priority === 'medium');
+    const lowPriority = executableTasks.filter((t) => t.priority === 'low');
+
+    // Execute high priority tasks sequentially
+    for (const task of highPriority) {
+      await this.executeTask(task);
+    }
+
+    // Execute medium priority tasks in parallel (up to 2)
+    await this.executeTasksBatch(mediumPriority, 2);
+
+    // Execute low priority tasks in parallel (up to 3)
+    await this.executeTasksBatch(lowPriority, 3);
+
+    console.log('\n✅ All tasks executed!\n');
+    this.taskManager.displayTasks();
+  }
+
+  /**
+   * Execute tasks in batches
+   */
+  private async executeTasksBatch(tasks: Task[], batchSize: number): Promise<void> {
+    for (let i = 0; i < tasks.length; i += batchSize) {
+      const batch = tasks.slice(i, i + batchSize);
+      const promises = batch.map((task) => this.executeTask(task));
+      await Promise.allSettled(promises);
+    }
+  }
+
+  /**
+   * Execute a single task
+   */
+  private async executeTask(task: Task): Promise<void> {
+    if (!this.taskExecutor) {
+      console.error('\n❌ Task executor not initialized');
+      return;
+    }
+
+    try {
+      this.taskManager.startTask(task.id);
+      const result = await this.taskExecutor.executeTask(task);
+      this.taskManager.completeTask(task.id, result);
+    } catch (error: any) {
+      this.taskManager.failTask(task.id, error.message);
+    }
+  }
+
+  /**
+   * Update context from completed task
+   */
+  private updateContextFromTask(task: Task): void {
+    // Update quality metrics based on task completion
+    switch (task.type) {
+      case 'feature':
+        this.context.codeQuality = Math.min(100, this.context.codeQuality + 5);
+        break;
+      case 'bug_fix':
+        this.context.bugCount = Math.max(0, this.context.bugCount - 1);
+        this.context.codeQuality = Math.min(100, this.context.codeQuality + 3);
+        break;
+      case 'test':
+        this.context.testCoverage = Math.min(100, this.context.testCoverage + 10);
+        this.context.codeQuality = Math.min(100, this.context.codeQuality + 5);
+        break;
+      case 'optimization':
+        this.context.codeQuality = Math.min(100, this.context.codeQuality + 10);
+        this.context.lastEvolution = new Date();
+        break;
+      case 'refactor':
+        this.context.codeQuality = Math.min(100, this.context.codeQuality + 8);
+        break;
+    }
   }
 }
 
