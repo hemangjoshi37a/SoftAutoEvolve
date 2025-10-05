@@ -5,6 +5,8 @@ export { AutonomousAgent } from './autonomous-agent.js';
 export { WorkflowOrchestrator } from './workflow-orchestrator.js';
 export { GitAutomation } from './git-automation.js';
 export { AutoTaskGenerator } from './auto-task-generator.js';
+export { ProjectAnalyzer, ProjectIntent } from './project-analyzer.js';
+export { GitHubAutomation } from './github-automation.js';
 
 import { IntelligentDevelopmentAgent } from './intelligent-agent.js';
 import { AutonomousAgent } from './autonomous-agent.js';

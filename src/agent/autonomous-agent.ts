@@ -1,6 +1,8 @@
 import { WorkflowOrchestrator } from './workflow-orchestrator.js';
 import { AutoTaskGenerator } from './auto-task-generator.js';
 import { GitAutomation } from './git-automation.js';
+import { ProjectAnalyzer, ProjectIntent } from './project-analyzer.js';
+import { GitHubAutomation } from './github-automation.js';
 
 /**
  * Autonomous Development Agent
@@ -10,15 +12,20 @@ export class AutonomousAgent {
   private orchestrator: WorkflowOrchestrator;
   private taskGenerator: AutoTaskGenerator;
   private gitAutomation: GitAutomation;
+  private projectAnalyzer: ProjectAnalyzer;
+  private githubAutomation: GitHubAutomation;
   private workingDir: string;
   private cycleCount: number = 0;
   private running: boolean = false;
+  private projectIntent: ProjectIntent | null = null;
 
   constructor(workingDir: string) {
     this.workingDir = workingDir;
     this.orchestrator = new WorkflowOrchestrator(workingDir);
     this.taskGenerator = new AutoTaskGenerator(workingDir);
     this.gitAutomation = new GitAutomation(workingDir);
+    this.projectAnalyzer = new ProjectAnalyzer(workingDir);
+    this.githubAutomation = new GitHubAutomation(workingDir);
   }
 
   /**
@@ -34,8 +41,20 @@ export class AutonomousAgent {
 
     console.log(`📁 ${this.workingDir}\n`);
 
-    // Initialize
+    // Analyze project intent
+    console.log('🔍 Analyzing project...');
+    this.projectIntent = await this.projectAnalyzer.analyzeProject();
+    console.log(this.projectAnalyzer.getSummary(this.projectIntent));
+    console.log('');
+
+    // Initialize Git and GitHub
     await this.orchestrator.initialize();
+
+    // Setup GitHub if configured
+    if (this.githubAutomation.isConfigured()) {
+      await this.githubAutomation.autoSetupGitHub();
+      console.log('');
+    }
 
     console.log('🔄 Running autonomous development cycles...\n');
     console.log('Press Ctrl+C to stop\n');
@@ -60,13 +79,29 @@ export class AutonomousAgent {
 
     console.log(`┌─ Cycle ${this.cycleCount} ─────────────────────────────┐`);
 
-    // Generate tasks
+    // Generate tasks based on project intent
     console.log('│ 🎯 Generating tasks...');
-    const tasks = await this.taskGenerator.generateTasks();
+    let tasks: string[];
+
+    if (this.projectIntent) {
+      // Use intelligent task generation based on project analysis
+      tasks = this.projectAnalyzer.generateDevelopmentPlan(this.projectIntent);
+    } else {
+      // Fallback to generic task generation
+      tasks = await this.taskGenerator.generateTasks();
+    }
 
     if (tasks.length === 0) {
-      console.log('│ ✓ No new tasks, project complete');
+      console.log('│ ✓ Project complete!');
       console.log('└─────────────────────────────────────────┘\n');
+
+      // Push final state to GitHub
+      if (this.githubAutomation.isConfigured()) {
+        await this.githubAutomation.pushToGitHub(
+          require('path').basename(this.workingDir)
+        );
+      }
+
       this.running = false;
       return;
     }
@@ -76,10 +111,20 @@ export class AutonomousAgent {
     // Execute workflow
     await this.orchestrator.executeWorkflowCycle(tasks);
 
+    // Push to GitHub after each cycle
+    if (this.githubAutomation.isConfigured()) {
+      await this.githubAutomation.pushToGitHub(
+        require('path').basename(this.workingDir)
+      );
+    }
+
     // Display stats
     await this.displayStats();
 
     console.log('└─────────────────────────────────────────┘\n');
+
+    // Re-analyze project for next cycle
+    this.projectIntent = await this.projectAnalyzer.analyzeProject();
   }
 
   /**
