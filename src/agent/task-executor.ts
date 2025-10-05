@@ -1,4 +1,4 @@
-import { spawn, exec } from 'child_process';
+import { spawn, exec, ChildProcess } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import { promisify } from 'util';
@@ -98,53 +98,106 @@ export class TaskExecutor {
   }
 
   /**
-   * Run Claude Code with a prompt (compact UI with progress)
+   * Run Claude Code with a prompt (with real-time output streaming)
    */
   private async runClaudeWithPrompt(prompt: string): Promise<string> {
-    const startTime = Date.now();
-    const spinner = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
-    let spinnerIndex = 0;
+    return new Promise(async (resolve, reject) => {
+      const startTime = Date.now();
 
-    // Create temp file
-    const tempFile = path.join(this.workingDir, `.claude-prompt-${Date.now()}.txt`);
-    fs.writeFileSync(tempFile, prompt);
+      // Write prompt to temp file as backup
+      const tempFile = path.join(this.workingDir, `.claude-prompt-${Date.now()}.txt`);
+      fs.writeFileSync(tempFile, prompt);
 
-    // Show compact progress
-    process.stdout.write('      ⏳ Claude Code: ');
+      console.log('\n      ┌─ Claude Code ─────────────────────────────────────┐');
+      console.log('      │ 💭 Starting task execution...');
 
-    const interval = setInterval(() => {
-      const elapsed = Math.floor((Date.now() - startTime) / 1000);
-      process.stdout.write(`\r      ${spinner[spinnerIndex]} Claude Code: ${elapsed}s`);
-      spinnerIndex = (spinnerIndex + 1) % spinner.length;
-    }, 100);
-
-    try {
-      const { stdout, stderr } = await execAsync(
-        `echo "${prompt.replace(/"/g, '\\"')}" | timeout 45s claude --dangerously-skip-permissions || true`,
-        {
+      try {
+        // Spawn Claude Code with proper stdio
+        const claude = spawn('claude', ['--dangerously-skip-permissions'], {
           cwd: this.workingDir,
-          maxBuffer: 1024 * 1024 * 10,
-          shell: '/bin/bash',
-        }
-      );
+          stdio: ['pipe', 'pipe', 'pipe'],
+        });
 
-      clearInterval(interval);
-      const duration = Math.floor((Date.now() - startTime) / 1000);
-      process.stdout.write(`\r      ✓ Claude Code: ${duration}s\n`);
+        let output = '';
+        let lastOutput = '';
+        let hasActivity = false;
 
-      // Clean up
-      try { fs.unlinkSync(tempFile); } catch {}
+        // Stream stdout with filtering
+        claude.stdout.on('data', (data) => {
+          const text = data.toString();
+          output += text;
 
-      return stdout || 'Task executed';
-    } catch (error: any) {
-      clearInterval(interval);
-      process.stdout.write(`\r      ⚠️  Claude Code: ${error.message}\n`);
+          // Show important lines only
+          const lines = text.split('\n');
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (trimmed &&
+                !trimmed.includes('Pre-flight') &&
+                !trimmed.includes('Welcome back') &&
+                trimmed.length > 5) {
+              // Show abbreviated output
+              const display = trimmed.substring(0, 55);
+              if (display !== lastOutput) {
+                console.log(`      │ 📝 ${display}...`);
+                lastOutput = display;
+                hasActivity = true;
+              }
+            }
+          }
+        });
 
-      // Clean up
-      try { fs.unlinkSync(tempFile); } catch {}
+        // Log errors
+        claude.stderr.on('data', (data) => {
+          const text = data.toString();
+          if (!text.includes('Pre-flight') && !text.includes('WARNING')) {
+            console.log(`      │ ⚠️  ${text.trim().substring(0, 55)}`);
+          }
+        });
 
-      return 'Task attempted';
-    }
+        // Send prompt and auto-exit
+        claude.stdin.write(prompt + '\n\n');
+
+        // Auto-exit after 40 seconds or when done
+        setTimeout(() => {
+          try {
+            claude.stdin.write('/exit\n');
+            claude.stdin.end();
+          } catch {}
+        }, 40000);
+
+        // Handle completion
+        claude.on('close', (code) => {
+          const duration = Math.floor((Date.now() - startTime) / 1000);
+
+          if (hasActivity) {
+            console.log(`      │ ✅ Task completed in ${duration}s`);
+          } else {
+            console.log(`      │ ⚠️  No visible activity (${duration}s)`);
+          }
+          console.log('      └───────────────────────────────────────────────────┘\n');
+
+          // Clean up temp file
+          try { fs.unlinkSync(tempFile); } catch {}
+
+          resolve(output || 'Task executed');
+        });
+
+        // Timeout fallback
+        setTimeout(() => {
+          try {
+            claude.kill('SIGTERM');
+            setTimeout(() => claude.kill('SIGKILL'), 2000);
+          } catch {}
+        }, 50000);
+
+      } catch (error: any) {
+        console.log(`      │ ❌ Error: ${error.message}`);
+        console.log('      └───────────────────────────────────────────────────┘\n');
+
+        try { fs.unlinkSync(tempFile); } catch {}
+        resolve('Task attempted');
+      }
+    });
   }
 
   /**
@@ -157,10 +210,11 @@ export class TaskExecutor {
 
     console.log('   📋 Using Spec-Kit...');
 
-    // Initialize if needed
+    // Check if already initialized (don't init in autonomous mode - causes hangs)
     if (!specKitIntegration.isSpecKitInitialized()) {
-      console.log('   Initializing Spec-Kit...');
-      await specKitIntegration.initializeSpecKit();
+      console.log('   ⚠️  Spec-Kit not initialized - skipping (prevents hang)');
+      // Fall back to Claude Code instead
+      return await this.executeWithClaude(task);
     }
 
     // Determine which Spec-Kit command to run based on task
@@ -378,15 +432,18 @@ export class TaskExecutor {
     switch (task.type) {
       case 'feature':
         prompt += '## Requirements\n\n';
-        prompt += 'Implement this feature with:\n';
-        prompt += '1. Clean, maintainable code following project conventions\n';
-        prompt += '2. Proper error handling and input validation\n';
-        prompt += '3. Tests to verify functionality (run them!)\n';
-        prompt += '4. Documentation (docstrings, comments)\n\n';
+        prompt += '⚠️  IMPORTANT: You MUST actually write/modify code files!\n\n';
+        prompt += 'Implement this feature by:\n';
+        prompt += '1. Creating or modifying the necessary code files\n';
+        prompt += '2. Writing clean, working code that implements the feature\n';
+        prompt += '3. Adding proper error handling and validation\n';
+        prompt += '4. Including tests if appropriate\n';
+        prompt += '5. Adding documentation/comments\n\n';
         prompt += 'After implementation:\n';
-        prompt += '- Run any existing tests\n';
-        prompt += '- Try running the application to verify it works\n';
-        prompt += '- Check for errors or warnings\n';
+        prompt += '- Verify the files were actually created/modified\n';
+        prompt += '- Run any existing tests to ensure nothing broke\n';
+        prompt += '- Try running the application if applicable\n\n';
+        prompt += 'DO NOT just analyze - actually implement the feature!\n';
         break;
 
       case 'bug_fix':
