@@ -34,7 +34,13 @@ export class ProjectAnalyzer {
     if (fs.existsSync(packageJsonPath)) {
       const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
       intent.description = packageJson.description || '';
-      intent.language = 'javascript';
+
+      // Check for TypeScript
+      if (fs.existsSync(path.join(this.workingDir, 'tsconfig.json'))) {
+        intent.language = 'typescript';
+      } else {
+        intent.language = 'javascript';
+      }
 
       // Detect framework from dependencies
       if (packageJson.dependencies || packageJson.devDependencies) {
@@ -43,18 +49,35 @@ export class ProjectAnalyzer {
           ...packageJson.devDependencies,
         };
 
-        if (deps.react) intent.framework = 'react';
+        // Framework detection
+        if (deps.react || deps['@types/react']) intent.framework = 'react';
         else if (deps.vue) intent.framework = 'vue';
-        else if (deps.angular) intent.framework = 'angular';
-        else if (deps.next) intent.framework = 'nextjs';
-        else if (deps.express) intent.framework = 'express';
-        else if (deps.nest) intent.framework = 'nestjs';
+        else if (deps.angular || deps['@angular/core']) intent.framework = 'angular';
+        else if (deps.next || deps['next']) intent.framework = 'nextjs';
+        else if (deps.express || deps['@types/express']) intent.framework = 'express';
+        else if (deps['@nestjs/core']) intent.framework = 'nestjs';
+        else if (deps.fastify) intent.framework = 'fastify';
+        else if (deps.koa) intent.framework = 'koa';
 
         // Detect type
-        if (deps.express || deps.fastify || deps.koa) intent.type = 'backend-api';
-        else if (deps.react || deps.vue || deps.angular) intent.type = 'frontend-app';
-        else if (packageJson.bin) intent.type = 'cli-tool';
-        else if (deps.electron) intent.type = 'desktop-app';
+        if (deps.express || deps.fastify || deps.koa || deps['@nestjs/core'] ||
+            deps['@types/express']) {
+          intent.type = 'backend-api';
+        }
+        else if (deps.react || deps.vue || deps.angular || deps['@types/react'] ||
+                 deps['@angular/core']) {
+          intent.type = 'frontend-app';
+        }
+        else if (packageJson.bin) {
+          intent.type = 'cli-tool';
+        }
+        else if (deps.electron) {
+          intent.type = 'desktop-app';
+        }
+        else if (deps.typescript || deps['@types/node']) {
+          // Has TypeScript but no clear framework - likely a library or tool
+          intent.type = 'library';
+        }
 
         intent.technologies = Object.keys(deps).slice(0, 10);
       }

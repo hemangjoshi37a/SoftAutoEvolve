@@ -1,6 +1,7 @@
 import { execSync, exec } from 'child_process';
 import { promisify } from 'util';
 import * as path from 'path';
+import { BranchNameGenerator } from './branch-name-generator.js';
 
 const execAsync = promisify(exec);
 
@@ -11,9 +12,11 @@ const execAsync = promisify(exec);
 export class GitAutomation {
   private workingDir: string;
   private mainBranch: string = 'main';
+  private branchNameGenerator: BranchNameGenerator;
 
   constructor(workingDir: string) {
     this.workingDir = workingDir;
+    this.branchNameGenerator = new BranchNameGenerator();
     this.detectMainBranch();
   }
 
@@ -52,7 +55,30 @@ export class GitAutomation {
   }
 
   /**
-   * Create a feature branch
+   * Create a feature branch with meaningful name
+   */
+  public async createBranchFromTasks(tasks: string[]): Promise<string> {
+    const branchName = this.branchNameGenerator.generateFromTasks(tasks, 'feature');
+
+    try {
+      await execAsync(`git checkout -b ${branchName}`, { cwd: this.workingDir });
+      console.log(`✓ Branch created: ${branchName}`);
+      return branchName;
+    } catch (error: any) {
+      // Branch might already exist, add timestamp
+      try {
+        const uniqueBranchName = `${branchName}-${Date.now()}`;
+        await execAsync(`git checkout -b ${uniqueBranchName}`, { cwd: this.workingDir });
+        console.log(`✓ Branch created: ${uniqueBranchName}`);
+        return uniqueBranchName;
+      } catch (e) {
+        throw new Error(`Failed to create branch: ${error.message}`);
+      }
+    }
+  }
+
+  /**
+   * Create a feature branch (legacy method for compatibility)
    */
   public async createBranch(branchName: string): Promise<string> {
     const safeBranchName = this.sanitizeBranchName(branchName);

@@ -69,10 +69,8 @@ export class WorkflowOrchestrator extends EventEmitter {
   private async planningPhase(tasks: string[]): Promise<void> {
     console.log('📋 Phase 1: Planning');
 
-    // Create feature branch
-    const branchName = await this.gitAutomation.createBranch(
-      `auto-${Date.now()}`
-    );
+    // Create feature branch with meaningful name
+    const branchName = await this.gitAutomation.createBranchFromTasks(tasks);
 
     // Add all tasks
     for (const taskDesc of tasks) {

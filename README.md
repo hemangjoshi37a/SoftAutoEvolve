@@ -12,6 +12,21 @@
 
 [🚀 Quick Start](#-quick-start) • [📖 Documentation](./docs) • [🤖 Autonomous Mode](#-autonomous-mode-new) • [💡 Examples](#-examples) • [⭐ Star Us](#-star-this-repo)
 
+## 🎉 Latest Updates
+
+### v3.1 - Quality of Life Improvements
+- ✅ **Meaningful Branch Names** - No more `auto-1759651327824`! Now generates `feature-add-user-authentication`
+- ✅ **Better Project Detection** - TypeScript projects correctly detected, no more "unknown" type
+- ✅ **Enhanced Framework Recognition** - Supports @types packages and scoped npm packages
+- 📖 **[Full v3.1 Changelog](./IMPROVEMENTS_v3.1.md)**
+
+### v3.0 - Major Feature Release
+- 🐳 Docker containerization for safety
+- 🌳 Parallel branch execution (3x faster!)
+- 🔔 Native OS notifications
+- 📚 Markdown documentation analyzer
+- 📖 **[Full v3.0 Changelog](./IMPROVEMENTS_v3.0.md)**
+
 ---
 
 ## 🌟 What Makes SoftAutoEvolve Special?
@@ -453,22 +468,29 @@ We welcome contributions! SoftAutoEvolve is open-source and community-driven.
 - [x] Autonomous development mode
 - [x] Git automation
 - [x] Task auto-generation
-- [ ] Web UI dashboard
-- [ ] Real-time collaboration
+- [x] Docker containers
+- [x] Parallel branch execution
+- [x] Native OS notifications
+- [x] Meaningful branch names
+- [ ] CodeScope 3D visualization integration
+- [ ] Claude Code extension interface
 
 ### 2025 Q1
+- [ ] Web UI dashboard (Codubhai integration)
+- [ ] Browser automation for web app testing
+- [ ] MCP tools for computer control
 - [ ] Market trend analysis
 - [ ] User feedback integration
 - [ ] Cloud deployment
-- [ ] Docker containers
 - [ ] CI/CD integration
 
 ### 2025 Q2
-- [ ] Multi-language support
-- [ ] Plugin system
-- [ ] API endpoints
+- [ ] Multi-language support (Python, Go, Rust)
+- [ ] Plugin system for extensibility
+- [ ] API endpoints for remote control
 - [ ] Analytics dashboard
 - [ ] Team collaboration features
+- [ ] Real-time code sharing
 
 ---
 

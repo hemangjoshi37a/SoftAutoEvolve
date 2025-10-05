@@ -12,6 +12,7 @@ export { NotificationSystem, NotificationType } from './notification-system.js';
 export { ParallelBranchManager, ParallelBranch, BranchStatus } from './parallel-branch-manager.js';
 export { TaskCoordinator, TaskGroup } from './task-coordinator.js';
 export { InteractiveCLI } from './interactive-cli.js';
+export { BranchNameGenerator } from './branch-name-generator.js';
 
 import { IntelligentDevelopmentAgent } from './intelligent-agent.js';
 import { AutonomousAgent } from './autonomous-agent.js';
