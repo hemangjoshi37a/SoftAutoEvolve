@@ -6,13 +6,15 @@
   "type": "module",
   "bin": {
     "softautoevolve": "./bin/softautoevolve.js",
-    "sae": "./bin/softautoevolve.js"
+    "sae": "./bin/softautoevolve.js",
+    "sae-chat": "./bin/sae-chat.js"
   },
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "tsc --watch",
     "cli": "node bin/softautoevolve.js",
+    "chat": "node bin/sae-chat.js",
     "test": "node dist/test.js",
     "setup": "npm install && npm run build"
   },

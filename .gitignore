@@ -141,6 +141,8 @@ vite.config.ts.timestamp-*
 # SoftAutoEvolve specific
 shinka_results/
 evaluate_spec_tasks.py
+test-projects/
+!test-projects/README.md
 
 # Python
 __pycache__/

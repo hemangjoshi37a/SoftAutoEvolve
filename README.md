@@ -104,7 +104,62 @@ SHINKA_EVOLVE_PATH=/home/your-user/Documents/GitHub/hjLabs.in-ShinkaEvolve
 
 ## 📖 Usage
 
-### Check Integration Status
+### 🗣️ Conversational Mode (Recommended)
+
+The easiest way to use SoftAutoEvolve! Just describe what you want to build in natural language:
+
+```bash
+# Start conversational mode
+softautoevolve chat
+
+# Or in a specific directory
+softautoevolve chat ./my-project
+
+# Or use the shortcut
+sae-chat
+```
+
+Example conversation:
+
+```
+🤖 Assistant: What would you like to build today?
+
+💬 You: I want to build a todo app with drag and drop
+
+🤖 Assistant: What kind of user interface are you thinking about?
+
+💬 You: A modern web app that works on mobile
+
+🤖 Assistant: What are the most important features for your users?
+
+💬 You: Add/delete tasks, mark complete, drag to reorder, sync across devices
+
+... (more questions) ...
+
+📋 Here's what I'm planning to build:
+[Shows complete plan]
+
+🤖 Assistant: Does this look good? (yes/no/modify)
+
+💬 You: yes
+
+⚙️  Creating project...
+📊 Progress: ████████████████████ 100%
+
+🎉 Your project is ready!
+```
+
+**All `/constitution`, `/specify`, `/plan`, `/tasks`, and `/implement` commands are handled automatically!**
+
+[📖 Read the Conversational Mode Guide](./docs/CONVERSATIONAL_MODE.md)
+
+---
+
+### Traditional Mode
+
+For more control, you can use individual commands:
+
+#### Check Integration Status
 
 ```bash
 softautoevolve status
@@ -115,13 +170,13 @@ This displays:
 - 📦 Installation status
 - 💡 Instructions for missing components
 
-### Launch Claude Code
+#### Launch Claude Code
 
 ```bash
 softautoevolve launch
 ```
 
-### Initialize Spec-Kit
+#### Initialize Spec-Kit
 
 ```bash
 # In current directory

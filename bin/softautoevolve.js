@@ -105,6 +105,29 @@ program
     }
   });
 
+// Chat command - Conversational Mode
+program
+  .command('chat [project-dir]')
+  .description('🗣️  Start conversational mode - just describe what you want to build!')
+  .option('-v, --verbose', 'Enable verbose output')
+  .action(async (projectDir, options) => {
+    try {
+      if (options.verbose) {
+        process.env.VERBOSE = 'true';
+      }
+
+      const { startConversationalMode } = await import(
+        '../dist/conversation/index.js'
+      );
+
+      const targetDir = projectDir || process.cwd();
+      await startConversationalMode(targetDir);
+    } catch (error) {
+      console.error('❌ Error:', error.message);
+      process.exit(1);
+    }
+  });
+
 // Workflow command
 program
   .command('workflow')
