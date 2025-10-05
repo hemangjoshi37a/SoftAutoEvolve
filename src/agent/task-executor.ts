@@ -104,9 +104,14 @@ export class TaskExecutor {
     return new Promise((resolve, reject) => {
       console.log('\n   ┌─ Claude Code Output ─────────────────────────────┐');
 
+      // Show prompt being sent
+      console.log(`   │ \x1b[90m>> Sending prompt: ${prompt.substring(0, 60)}...\x1b[0m`);
+      console.log(`   │ \x1b[36m▸\x1b[0m Waiting for Claude Code response...`);
+
       const child = spawn('claude', ['--dangerously-skip-permissions'], {
         cwd: this.workingDir,
         stdio: ['pipe', 'pipe', 'pipe'],
+        shell: true,
       });
 
       let output = '';

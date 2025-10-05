@@ -14,7 +14,17 @@
 
 ## 🎉 Latest Updates
 
-### v3.3 - Stability & Intelligence Edition (NEW!) 🔧
+### v3.4 - Closed-Loop Sensory Edition (NEW!) 🎮
+- 👁️ **Visual Feedback** - Screen capture, window management, and screenshot analysis
+- ⌨️🖱️ **Keyboard/Mouse Control** - Full X11/Xorg automation with xdotool
+- 🌐 **Browser Automation** - Test web applications with real browser interaction
+- 🧪 **Closed-Loop Testing** - Verify implementations with visual feedback
+- 🤖 **Actiona Integration** - Complex automation scenarios
+- 📊 **OCR Analysis** - Extract and verify text from screenshots
+- 💬 **Fixed Claude Code Output** - Now shows all output reliably
+- 📖 **[Full v3.4 Changelog](./IMPROVEMENTS_v3.4.md)**
+
+### v3.3 - Stability & Intelligence Edition 🔧
 - 🔧 **Critical: Fixed Process Hanging** - Intelligent inactivity detection replaces fixed 5s timeout
 - 📺 **Complete Output Capture** - Shows ALL Claude Code output, no more premature cutoffs
 - 🐍 **Enhanced Python Detection** - Correctly detects Python projects, frameworks (PyQt6), and entry points

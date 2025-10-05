@@ -15,6 +15,8 @@ export { InteractiveCLI } from './interactive-cli.js';
 export { BranchNameGenerator } from './branch-name-generator.js';
 export { BranchResumeManager, BranchInfo } from './branch-resume-manager.js';
 export { CyberpunkUI } from './cyberpunk-ui.js';
+export { SensorySystem } from './sensory-system.js';
+export { ClosedLoopTester } from './closed-loop-tester.js';
 
 import { IntelligentDevelopmentAgent } from './intelligent-agent.js';
 import { AutonomousAgent } from './autonomous-agent.js';

@@ -7,6 +7,8 @@ import { MDAnalyzer, MDAnalysisResult } from './md-analyzer.js';
 import { NotificationSystem } from './notification-system.js';
 import { BranchResumeManager } from './branch-resume-manager.js';
 import { CyberpunkUI } from './cyberpunk-ui.js';
+import { SensorySystem } from './sensory-system.js';
+import { ClosedLoopTester } from './closed-loop-tester.js';
 
 /**
  * Autonomous Development Agent
@@ -21,6 +23,8 @@ export class AutonomousAgent {
   private mdAnalyzer: MDAnalyzer;
   private notifications: NotificationSystem;
   private branchResumeManager: BranchResumeManager;
+  private sensorySystem: SensorySystem;
+  private closedLoopTester: ClosedLoopTester;
   private workingDir: string;
   private cycleCount: number = 0;
   private running: boolean = false;
@@ -37,6 +41,8 @@ export class AutonomousAgent {
     this.mdAnalyzer = new MDAnalyzer(workingDir);
     this.notifications = new NotificationSystem();
     this.branchResumeManager = new BranchResumeManager(workingDir);
+    this.sensorySystem = new SensorySystem(workingDir);
+    this.closedLoopTester = new ClosedLoopTester(workingDir);
   }
 
   /**
@@ -63,6 +69,19 @@ export class AutonomousAgent {
     // Analyze Markdown documentation
     this.mdAnalysisResult = await this.mdAnalyzer.analyzeAllMDFiles();
     console.log(this.mdAnalyzer.formatSummary(this.mdAnalysisResult));
+    console.log('');
+
+    // Display sensory capabilities
+    console.log(CyberpunkUI.info('Detecting sensory capabilities...\n'));
+    const capabilities = await this.closedLoopTester.getCapabilities();
+    console.log('🎮 Sensory Capabilities:');
+    console.log(`   X11 Display: ${capabilities.x11 ? '\x1b[32m✓\x1b[0m' : '\x1b[31m✗\x1b[0m'}`);
+    console.log(`   Screenshot:  ${capabilities.screenshot ? '\x1b[32m✓\x1b[0m' : '\x1b[31m✗\x1b[0m'}`);
+    console.log(`   Keyboard:    ${capabilities.keyboard ? '\x1b[32m✓\x1b[0m' : '\x1b[31m✗\x1b[0m'}`);
+    console.log(`   Mouse:       ${capabilities.mouse ? '\x1b[32m✓\x1b[0m' : '\x1b[31m✗\x1b[0m'}`);
+    console.log(`   Browser:     ${capabilities.browser ? '\x1b[32m✓\x1b[0m' : '\x1b[31m✗\x1b[0m'}`);
+    console.log(`   Actiona:     ${capabilities.actiona ? '\x1b[32m✓\x1b[0m' : '\x1b[31m✗\x1b[0m'}`);
+    console.log(`   OCR:         ${capabilities.ocr ? '\x1b[32m✓\x1b[0m' : '\x1b[31m✗\x1b[0m'}`);
     console.log('');
 
     // Check for open branches to resume
