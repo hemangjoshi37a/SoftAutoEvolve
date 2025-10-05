@@ -1,0 +1,51 @@
+{
+  "name": "softautoevolve",
+  "version": "1.0.0",
+  "description": "Abstraction layer for evolutionary software development - integrating Claude Code, Spec-Kit, and ShinkaEvolve",
+  "main": "dist/index.js",
+  "type": "module",
+  "bin": {
+    "softautoevolve": "./bin/softautoevolve.js",
+    "sae": "./bin/softautoevolve.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc --watch",
+    "cli": "node bin/softautoevolve.js",
+    "test": "node dist/test.js",
+    "setup": "npm install && npm run build"
+  },
+  "keywords": [
+    "ai",
+    "claude-code",
+    "spec-kit",
+    "shinka-evolve",
+    "evolutionary-algorithms",
+    "software-development",
+    "autonomous",
+    "cli",
+    "abstraction-layer",
+    "market-intelligence",
+    "user-feedback"
+  ],
+  "author": "Hemang Joshi",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "typescript": "^5.6.0",
+    "commander": "^12.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hemangjoshi37a/SoftAutoEvolve.git"
+  },
+  "homepage": "https://github.com/hemangjoshi37a/SoftAutoEvolve",
+  "preferGlobal": true
+}
