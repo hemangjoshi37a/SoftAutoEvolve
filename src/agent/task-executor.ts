@@ -71,133 +71,68 @@ export class TaskExecutor {
 
     console.log('   🤖 Using Claude Code...');
 
-    // Create a temporary prompt file
-    const promptFile = path.join(this.workingDir, '.claude-prompt.txt');
+    // Create prompt from task
     const prompt = this.createPromptFromTask(task);
-    fs.writeFileSync(promptFile, prompt);
 
-    try {
-      // Execute Claude Code with the prompt
-      // Since Claude Code is interactive, we'll use a different approach
-      // We'll spawn it and send the prompt via stdin
-      const result = await this.runClaudeWithPrompt(prompt);
+    // Execute Claude Code with --print mode (non-interactive)
+    const result = await this.runClaudeWithPrompt(prompt);
 
-      // Clean up
-      if (fs.existsSync(promptFile)) {
-        fs.unlinkSync(promptFile);
-      }
-
-      return result;
-    } catch (error: any) {
-      // Clean up on error
-      if (fs.existsSync(promptFile)) {
-        fs.unlinkSync(promptFile);
-      }
-      throw error;
-    }
+    return result;
   }
 
   /**
-   * Run Claude Code with a prompt (with real-time output streaming)
+   * Run Claude Code with a prompt using --print mode (non-interactive)
+   * This is the correct way to use Claude Code programmatically!
    */
   private async runClaudeWithPrompt(prompt: string): Promise<string> {
-    return new Promise(async (resolve, reject) => {
-      const startTime = Date.now();
+    const startTime = Date.now();
 
-      // Write prompt to temp file as backup
-      const tempFile = path.join(this.workingDir, `.claude-prompt-${Date.now()}.txt`);
-      fs.writeFileSync(tempFile, prompt);
+    console.log('\n      ┌─ Claude Code ─────────────────────────────────────┐');
+    console.log('      │ 💭 Starting task execution...');
 
-      console.log('\n      ┌─ Claude Code ─────────────────────────────────────┐');
-      console.log('      │ 💭 Starting task execution...');
-
-      try {
-        // Spawn Claude Code with proper stdio
-        const claude = spawn('claude', ['--dangerously-skip-permissions'], {
+    try {
+      // Use --print mode with --permission-mode for non-interactive execution
+      // This bypasses the interactive confirmation dialog
+      const { stdout, stderr } = await execAsync(
+        `echo "${prompt.replace(/"/g, '\\"').replace(/\n/g, '\\n')}" | claude --print --permission-mode bypassPermissions`,
+        {
           cwd: this.workingDir,
-          stdio: ['pipe', 'pipe', 'pipe'],
-        });
+          maxBuffer: 10 * 1024 * 1024, // 10MB buffer
+          timeout: 120000, // 2 minute timeout
+          shell: '/bin/bash'
+        }
+      );
 
-        let output = '';
-        let lastOutput = '';
-        let hasActivity = false;
+      const duration = Math.floor((Date.now() - startTime) / 1000);
 
-        // Stream stdout with filtering
-        claude.stdout.on('data', (data) => {
-          const text = data.toString();
-          output += text;
-
-          // Show important lines only
-          const lines = text.split('\n');
-          for (const line of lines) {
-            const trimmed = line.trim();
-            if (trimmed &&
-                !trimmed.includes('Pre-flight') &&
-                !trimmed.includes('Welcome back') &&
-                trimmed.length > 5) {
-              // Show abbreviated output
-              const display = trimmed.substring(0, 55);
-              if (display !== lastOutput) {
-                console.log(`      │ 📝 ${display}...`);
-                lastOutput = display;
-                hasActivity = true;
-              }
-            }
-          }
-        });
-
-        // Log errors
-        claude.stderr.on('data', (data) => {
-          const text = data.toString();
-          if (!text.includes('Pre-flight') && !text.includes('WARNING')) {
-            console.log(`      │ ⚠️  ${text.trim().substring(0, 55)}`);
-          }
-        });
-
-        // Send prompt and auto-exit
-        claude.stdin.write(prompt + '\n\n');
-
-        // Auto-exit after 40 seconds or when done
-        setTimeout(() => {
-          try {
-            claude.stdin.write('/exit\n');
-            claude.stdin.end();
-          } catch {}
-        }, 40000);
-
-        // Handle completion
-        claude.on('close', (code) => {
-          const duration = Math.floor((Date.now() - startTime) / 1000);
-
-          if (hasActivity) {
-            console.log(`      │ ✅ Task completed in ${duration}s`);
-          } else {
-            console.log(`      │ ⚠️  No visible activity (${duration}s)`);
-          }
-          console.log('      └───────────────────────────────────────────────────┘\n');
-
-          // Clean up temp file
-          try { fs.unlinkSync(tempFile); } catch {}
-
-          resolve(output || 'Task executed');
-        });
-
-        // Timeout fallback
-        setTimeout(() => {
-          try {
-            claude.kill('SIGTERM');
-            setTimeout(() => claude.kill('SIGKILL'), 2000);
-          } catch {}
-        }, 50000);
-
-      } catch (error: any) {
-        console.log(`      │ ❌ Error: ${error.message}`);
-        console.log('      └───────────────────────────────────────────────────┘\n');
-
-        try { fs.unlinkSync(tempFile); } catch {}
-        resolve('Task attempted');
+      // Show output summary
+      const output = stdout.trim();
+      if (output) {
+        // Show first few lines of output
+        const lines = output.split('\n');
+        const preview = lines.slice(0, 3).join('\n');
+        console.log(`      │ 📝 ${preview.substring(0, 150)}...`);
+        console.log(`      │ ✅ Task completed in ${duration}s`);
+      } else {
+        console.log(`      │ ⚠️  No output (${duration}s)`);
       }
-    });
+
+      if (stderr && !stderr.includes('Pre-flight') && !stderr.includes('WARNING')) {
+        console.log(`      │ ⚠️  ${stderr.trim().substring(0, 100)}`);
+      }
+
+      console.log('      └───────────────────────────────────────────────────┘\n');
+
+      return output || 'Task executed';
+
+    } catch (error: any) {
+      const duration = Math.floor((Date.now() - startTime) / 1000);
+      console.log(`      │ ❌ Error after ${duration}s: ${error.message.substring(0, 100)}`);
+      console.log('      └───────────────────────────────────────────────────┘\n');
+
+      // Don't throw - let the workflow continue
+      return 'Task attempted with errors';
+    }
   }
 
   /**

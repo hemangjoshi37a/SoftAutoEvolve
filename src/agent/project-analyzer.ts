@@ -263,10 +263,27 @@ export class ProjectAnalyzer {
         tasks.push('Add help documentation and examples');
         tasks.push('Improve CLI argument parsing');
         tasks.push('Add progress indicators');
+      } else if (intent.type === 'desktop-app') {
+        tasks.push('Add new feature: settings/preferences panel');
+        tasks.push('Improve user interface responsiveness');
+        tasks.push('Add keyboard shortcuts');
+        tasks.push('Optimize performance and memory usage');
+      } else if (intent.type === 'library' || intent.type === 'web-app') {
+        tasks.push('Add new page/route for additional functionality');
+        tasks.push('Improve mobile responsiveness');
+        tasks.push('Add loading states and error handling');
+      }
+
+      // Always add general improvement tasks if nothing else
+      if (tasks.length === 0) {
+        tasks.push('Refactor code for better maintainability');
+        tasks.push('Add error handling and logging');
+        tasks.push('Optimize performance');
+        tasks.push('Add new feature based on project purpose');
       }
     }
 
-    return tasks.slice(0, 5); // Return max 5 tasks
+    return tasks.slice(0, 3); // Return max 3 tasks for better focus
   }
 
   /**

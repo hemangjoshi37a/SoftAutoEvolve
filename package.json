@@ -1,6 +1,6 @@
 {
   "name": "softautoevolve",
-  "version": "1.0.0",
+  "version": "5.0.0",
   "description": "Abstraction layer for evolutionary software development - integrating Claude Code, Spec-Kit, and ShinkaEvolve",
   "main": "dist/index.js",
   "type": "module",
@@ -38,9 +38,14 @@
   "author": "Hemang Joshi",
   "license": "MIT",
   "dependencies": {
+    "chalk": "^5.6.2",
+    "cli-progress": "^3.12.0",
+    "commander": "^12.1.0",
     "dotenv": "^16.4.5",
-    "typescript": "^5.6.0",
-    "commander": "^12.1.0"
+    "inquirer": "^12.9.6",
+    "node-pty": "^1.0.0",
+    "ora": "^9.0.0",
+    "typescript": "^5.6.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0"

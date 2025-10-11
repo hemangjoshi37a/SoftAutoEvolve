@@ -9,6 +9,7 @@ import { BranchResumeManager } from './branch-resume-manager.js';
 import { CyberpunkUI } from './cyberpunk-ui.js';
 import { SensorySystem } from './sensory-system.js';
 import { ClosedLoopTester } from './closed-loop-tester.js';
+import { SmartOrchestrator } from './smart-orchestrator.js';
 
 /**
  * Autonomous Development Agent
@@ -25,11 +26,13 @@ export class AutonomousAgent {
   private branchResumeManager: BranchResumeManager;
   private sensorySystem: SensorySystem;
   private closedLoopTester: ClosedLoopTester;
+  private smartOrchestrator: SmartOrchestrator;
   private workingDir: string;
   private cycleCount: number = 0;
   private running: boolean = false;
   private projectIntent: ProjectIntent | null = null;
   private mdAnalysisResult: MDAnalysisResult | null = null;
+  private useSmartMode: boolean = true; // NEW: Use AI-driven smart mode
 
   constructor(workingDir: string) {
     this.workingDir = workingDir;
@@ -43,6 +46,7 @@ export class AutonomousAgent {
     this.branchResumeManager = new BranchResumeManager(workingDir);
     this.sensorySystem = new SensorySystem(workingDir);
     this.closedLoopTester = new ClosedLoopTester(workingDir);
+    this.smartOrchestrator = new SmartOrchestrator(workingDir);
   }
 
   /**
@@ -155,6 +159,28 @@ export class AutonomousAgent {
   private async runCycle(): Promise<void> {
     this.cycleCount++;
 
+    // Use SMART MODE (AI-driven with code analysis)
+    if (this.useSmartMode) {
+      const result = await this.smartOrchestrator.executeSmartCycle();
+
+      if (!result.success) {
+        console.log('\n⚠️  Smart cycle completed but no changes made');
+        console.log('   Trying one more cycle...\n');
+      }
+
+      // Push to GitHub after cycle
+      if (this.githubAutomation.isConfigured()) {
+        const repoName = require('path').basename(this.workingDir);
+        await this.githubAutomation.pushToGitHub(repoName);
+      }
+
+      // Display stats
+      await this.displayStats();
+
+      return;
+    }
+
+    // LEGACY MODE (hardcoded tasks) - kept as fallback
     console.log(`┌─ Cycle ${this.cycleCount} ─────────────────────────────┐`);
 
     // Generate tasks based on project intent
